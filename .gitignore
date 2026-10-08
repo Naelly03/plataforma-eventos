@@ -1,0 +1,13 @@
+node_modules/
+.env
+.env*.local
+.next/
+.expo/
+dist/
+web/src/generated/
+
+# ferramentas de IA/editor
+.claude/
+.agents/
+.windsurf/
+skills-lock.json

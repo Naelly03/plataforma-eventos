@@ -12,13 +12,18 @@ export async function DELETE(req: Request, { params }: Ctx) {
 
   const { id } = await params;
 
-  const registration = await prisma.registration.findUnique({ where: { id } });
+  const registration = await prisma.registration.findUnique({
+    where: { id },
+    include: { event: { select: { ownerId: true } } },
+  });
   if (!registration) {
     return NextResponse.json({ error: "Inscrição não encontrada" }, { status: 404 });
   }
 
-  // só o dono cancela (nem ADMIN cancela inscrição de outro usuário)
-  if (registration.userId !== auth.userId) {
+  // cancela quem se inscreveu ou o organizador do evento (remover inscrito)
+  const isRegistrant = registration.userId === auth.userId;
+  const isEventOwner = registration.event.ownerId === auth.userId;
+  if (!isRegistrant && !isEventOwner) {
     return NextResponse.json({ error: "Você não pode cancelar esta inscrição" }, { status: 403 });
   }
 

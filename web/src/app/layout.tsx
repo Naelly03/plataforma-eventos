@@ -10,7 +10,7 @@ const figtree = Figtree({
 });
 
 export const metadata: Metadata = {
-  title: "Eventum | Gestão de Eventos",
+  title: "Agendei | Gestão de Eventos",
   description: "Plataforma de gerenciamento e participação em eventos.",
 };
 
@@ -21,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className={figtree.variable}>
+      <body className={`${figtree.variable} font-sans antialiased`}>
         <DashboardShell>{children}</DashboardShell>
       </body>
     </html>

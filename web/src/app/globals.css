@@ -1,1 +1,12 @@
 @import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-figtree), system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    background: #f8fafc;
+    color: #1e293b;
+  }
+}

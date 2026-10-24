@@ -3,24 +3,23 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
-type LoginResponse = {
-  token?: string;
-  user?: {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-  };
-  error?: string;
-};
+import {
+  authButtonClass,
+  authCardClass,
+  authInputClass,
+  authLabelClass,
+  authLinkClass,
+  authTitleClass,
+  mensagemDeErro,
+  salvarSessao,
+  type AuthResponse,
+} from "@/components/auth-styles";
 
 export default function LoginPage() {
   const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -38,28 +37,19 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data: LoginResponse = await response.json();
+      const data: AuthResponse = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Não foi possível entrar.");
+        throw new Error(mensagemDeErro(data.error, "Não foi possível entrar."));
       }
 
-      if (!data.token) {
-        throw new Error("O servidor não retornou o token.");
-      }
-
-      localStorage.setItem("eventum_token", data.token);
-
-      if (data.user) {
-        localStorage.setItem("eventum_user", JSON.stringify(data.user));
-      }
-
+      salvarSessao(data);
       router.push("/eventos");
     } catch (err) {
       setError(
         err instanceof Error
           ? err.message
-          : "Erro inesperado. Tente novamente."
+          : "Erro inesperado. Tente novamente.",
       );
     } finally {
       setLoading(false);
@@ -67,106 +57,61 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-5 py-12">
-      <section className="w-full max-w-md">
-        <Link
-          href="/login"
-          className="mb-10 inline-block text-2xl font-bold tracking-tight text-slate-900"
-        >
-          Agendou<span className="text-orange-600">.</span>
-        </Link>
-
-        <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm sm:p-9">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-orange-600">
-            Painel administrativo
-          </p>
-
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-            Bem-vindo de volta
-          </h1>
-
-          <p className="mt-2 text-sm leading-6 text-slate-500">
-            Entre na sua conta para continuar.
-          </p>
-
-          <form onSubmit={handleSubmit} className="mt-8 space-y-5">
-            <div>
-              <label
-                htmlFor="email"
-                className="mb-2 block text-sm font-medium text-slate-700"
-              >
-                E-mail
-              </label>
-
-              <input
-                id="email"
-                type="email"
-                autoComplete="email"
-                placeholder="voce@email.com"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-100"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="password"
-                className="mb-2 block text-sm font-medium text-slate-700"
-              >
-                Senha
-              </label>
-
-              <div className="relative">
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  placeholder="Digite sua senha"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 px-4 py-3 pr-20 text-sm outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-100"
-                />
-
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-3 text-sm text-slate-500 hover:text-orange-600"
-                >
-                  {showPassword ? "Ocultar" : "Mostrar"}
-                </button>
-              </div>
-            </div>
-
-            {error && (
-              <p
-                role="alert"
-                className="rounded-lg bg-red-50 p-3 text-sm text-red-700"
-              >
-                {error}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-lg bg-orange-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {loading ? "Entrando..." : "Entrar"}
-            </button>
-          </form>
-
-          <p className="mt-6 text-center text-xs text-slate-500">
-            Acesso restrito a usuários autorizados.
-          </p>
-        </div>
-
-        <p className="mt-6 text-center text-xs text-slate-400">
-          Agendou · Gestão de eventos
+    <main className="flex flex-1 items-center justify-center px-5 py-10">
+      <div className={authCardClass}>
+        <h1 className={authTitleClass}>Bem-vindo de volta</h1>
+        <p className="mb-[22px] text-slate-500">
+          Entre para gerenciar seus eventos.
         </p>
-      </section>
+
+        <form onSubmit={handleSubmit}>
+          <label htmlFor="email" className={authLabelClass}>
+            Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            autoComplete="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className={`${authInputClass} mb-4`}
+          />
+
+          <label htmlFor="password" className={authLabelClass}>
+            Senha
+          </label>
+          <input
+            id="password"
+            type="password"
+            autoComplete="current-password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className={`${authInputClass} mb-[22px]`}
+          />
+
+          {error && (
+            <p
+              role="alert"
+              className="mb-4 rounded-[10px] bg-red-50 p-3 text-sm text-red-700"
+            >
+              {error}
+            </p>
+          )}
+
+          <button type="submit" disabled={loading} className={authButtonClass}>
+            {loading ? "Entrando..." : "Entrar"}
+          </button>
+        </form>
+
+        <p className="mt-5 text-center text-slate-600">
+          Não tem conta?{" "}
+          <Link href="/cadastro" className={authLinkClass}>
+            Cadastre-se
+          </Link>
+        </p>
+      </div>
     </main>
   );
 }

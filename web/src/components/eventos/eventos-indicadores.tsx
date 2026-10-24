@@ -3,27 +3,27 @@
 
 type EventosIndicadoresProps = {
   total: number;
-  categorias: number;
+  locais: number;
   resultados: number;
 };
 
 export default function EventosIndicadores({
   total,
-  categorias,
+  locais,
   resultados,
 }: EventosIndicadoresProps) {
   const indicadores = [
     {
       titulo: "Total de eventos",
       valor: total,
-      descricao: "Eventos cadastrados nesta sessão",
+      descricao: "Eventos que você organiza",
       simbolo: "▦",
       destaque: true,
     },
     {
-      titulo: "Categorias",
-      valor: categorias,
-      descricao: "Categorias diferentes",
+      titulo: "Locais",
+      valor: locais,
+      descricao: "Locais diferentes",
       simbolo: "◈",
       destaque: false,
     },

@@ -1,7 +1,7 @@
 
 "use client";
 
-import type { Evento } from "@/types/evento";
+import { formatarData, type Evento } from "@/types/evento";
 
 type EventosListaProps = {
   eventos: Evento[];
@@ -77,7 +77,6 @@ export default function EventosLista({
                   <th className="px-5 py-4 font-semibold">Evento</th>
                   <th className="px-5 py-4 font-semibold">Data e hora</th>
                   <th className="px-5 py-4 font-semibold">Local</th>
-                  <th className="px-5 py-4 font-semibold">Categoria</th>
                   <th className="px-5 py-4 text-right font-semibold">
                     Ações
                   </th>
@@ -89,28 +88,22 @@ export default function EventosLista({
                   <tr key={evento.id} className="transition hover:bg-slate-50">
                     <td className="px-5 py-4">
                       <p className="font-semibold text-slate-800">
-                        {evento.titulo}
+                        {evento.title}
                       </p>
                       <p className="mt-1 max-w-xs truncate text-xs text-slate-500">
-                        {evento.descricao}
+                        {evento.description}
                       </p>
                     </td>
 
                     <td className="whitespace-nowrap px-5 py-4">
-                      <p className="font-medium">{evento.data}</p>
+                      <p className="font-medium">{formatarData(evento.date)}</p>
                       <p className="mt-1 text-xs text-slate-500">
-                        {evento.horario}
+                        {evento.time}
                       </p>
                     </td>
 
                     <td className="px-5 py-4 text-slate-600">
-                      {evento.local}
-                    </td>
-
-                    <td className="px-5 py-4">
-                      <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700">
-                        {evento.categoria}
-                      </span>
+                      {evento.location}
                     </td>
 
                     <td className="px-5 py-4">
@@ -141,21 +134,18 @@ export default function EventosLista({
                 key={evento.id}
                 className="rounded-lg border border-slate-200 p-4"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="font-bold">{evento.titulo}</h3>
-                    <p className="mt-1 text-sm text-slate-500">
-                      {evento.data} · {evento.horario}
-                    </p>
-                  </div>
-                  <span className="rounded-full bg-orange-50 px-2.5 py-1 text-xs text-orange-700">
-                    {evento.categoria}
-                  </span>
+                <div>
+                  <h3 className="font-bold">{evento.title}</h3>
+                  <p className="mt-1 text-sm text-slate-500">
+                    {formatarData(evento.date)} · {evento.time}
+                  </p>
                 </div>
 
-                <p className="mt-3 text-sm text-slate-600">{evento.local}</p>
+                <p className="mt-3 text-sm text-slate-600">
+                  {evento.location}
+                </p>
                 <p className="mt-1 text-sm text-slate-500">
-                  {evento.descricao}
+                  {evento.description}
                 </p>
 
                 <div className="mt-4 flex gap-2 border-t border-slate-100 pt-3">

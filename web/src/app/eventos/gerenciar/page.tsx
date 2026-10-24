@@ -1,115 +1,174 @@
-
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import EventosIndicadores from "@/components/eventos/eventos-indicadores";
 import EventosLista from "@/components/eventos/eventos-lista";
 import EventoFormModal, {
   type EventoForm,
 } from "@/components/eventos/evento-form-modal";
-import { eventosIniciais, type Evento } from "@/types/evento";
+import { api, mensagemDoErro } from "@/lib/api";
+import { useSessao } from "@/lib/session";
+import type { Evento } from "@/types/evento";
 
 const formularioVazio: EventoForm = {
-  titulo: "",
-  categoria: "",
-  data: "",
-  horario: "",
-  local: "",
-  descricao: "",
+  title: "",
+  description: "",
+  date: "",
+  time: "",
+  location: "",
+  imageUrl: "",
 };
 
+function ordenar(eventos: Evento[]) {
+  return [...eventos].sort(
+    (a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time),
+  );
+}
+
 export default function GerenciarEventosPage() {
-  const [eventos, setEventos] = useState(eventosIniciais);
+  const { user } = useSessao();
+
+  const [eventos, setEventos] = useState<Evento[] | null>(null);
+  const [erro, setErro] = useState("");
   const [busca, setBusca] = useState("");
   const [modalAberto, setModalAberto] = useState(false);
   const [eventoEditando, setEventoEditando] = useState<Evento | null>(null);
   const [mensagem, setMensagem] = useState("");
   const [form, setForm] = useState<EventoForm>(formularioVazio);
+  const [salvando, setSalvando] = useState(false);
+  const [erroForm, setErroForm] = useState("");
+  const [tentativa, setTentativa] = useState(0);
+
+  useEffect(() => {
+    let ativo = true;
+
+    api<Evento[]>("/api/events")
+      .then((lista) => {
+        if (ativo) setEventos(lista);
+      })
+      .catch((err) => {
+        if (!ativo) return;
+        setErro(mensagemDoErro(err, "Não foi possível carregar os eventos."));
+      });
+
+    return () => {
+      ativo = false;
+    };
+  }, [tentativa]);
+
+  // A API lista todos os eventos; aqui só entram os que o usuário organiza.
+  const meusEventos = useMemo(
+    () => (eventos ?? []).filter((evento) => evento.ownerId === user?.id),
+    [eventos, user?.id],
+  );
 
   const eventosFiltrados = useMemo(
     () =>
-      eventos.filter((evento) =>
-        `${evento.titulo} ${evento.categoria} ${evento.local}`
+      meusEventos.filter((evento) =>
+        `${evento.title} ${evento.location}`
           .toLowerCase()
           .includes(busca.toLowerCase()),
       ),
-    [eventos, busca],
+    [meusEventos, busca],
   );
+
+  function tentarNovamente() {
+    setErro("");
+    setTentativa((atual) => atual + 1);
+  }
 
   function abrirCadastro() {
     setEventoEditando(null);
     setForm({ ...formularioVazio });
+    setErroForm("");
     setModalAberto(true);
   }
 
   function abrirEdicao(evento: Evento) {
     setEventoEditando(evento);
 
-    const [dia, mes, ano] = evento.data.split("/");
-
     setForm({
-      titulo: evento.titulo,
-      categoria: evento.categoria,
-      data: `${ano}-${mes}-${dia}`,
-      horario: evento.horario,
-      local: evento.local,
-      descricao: evento.descricao,
+      title: evento.title,
+      description: evento.description,
+      date: evento.date.slice(0, 10),
+      time: evento.time,
+      location: evento.location,
+      imageUrl: evento.imageUrl,
     });
 
+    setErroForm("");
     setModalAberto(true);
   }
 
-  function salvarEvento(e: React.FormEvent<HTMLFormElement>) {
+  async function salvarEvento(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setSalvando(true);
+    setErroForm("");
 
-    const [ano, mes, dia] = form.data.split("-");
+    try {
+      if (eventoEditando) {
+        const atualizado = await api<Evento>(
+          `/api/events/${eventoEditando.id}`,
+          { method: "PUT", body: JSON.stringify(form) },
+        );
 
-    const evento: Evento = {
-      id: eventoEditando?.id ?? Date.now(),
-      ...form,
-      data: `${dia}/${mes}/${ano}`,
-    };
+        setEventos((atuais) =>
+          ordenar(
+            (atuais ?? []).map((item) =>
+              item.id === atualizado.id ? atualizado : item,
+            ),
+          ),
+        );
+        setMensagem("Evento atualizado.");
+      } else {
+        const criado = await api<Evento>("/api/events", {
+          method: "POST",
+          body: JSON.stringify(form),
+        });
 
-    if (eventoEditando) {
-      setEventos((anteriores) =>
-        anteriores.map((item) =>
-          item.id === eventoEditando.id ? evento : item,
-        ),
-      );
-      setMensagem("Evento atualizado nesta demonstração.");
-    } else {
-      setEventos((anteriores) => [...anteriores, evento]);
-      setMensagem("Evento cadastrado nesta demonstração.");
+        setEventos((atuais) => ordenar([...(atuais ?? []), criado]));
+        setMensagem("Evento cadastrado.");
+      }
+
+      setModalAberto(false);
+    } catch (err) {
+      setErroForm(mensagemDoErro(err, "Não foi possível salvar o evento."));
+    } finally {
+      setSalvando(false);
     }
-
-    setModalAberto(false);
   }
 
-  function excluirEvento(evento: Evento) {
+  async function excluirEvento(evento: Evento) {
     const confirmar = window.confirm(
-      `Deseja excluir o evento "${evento.titulo}"?`,
+      `Deseja excluir o evento "${evento.title}"?`,
     );
 
     if (!confirmar) return;
 
-    setEventos((anteriores) =>
-      anteriores.filter((item) => item.id !== evento.id),
-    );
-    setMensagem("Evento removido desta demonstração.");
+    try {
+      await api<void>(`/api/events/${evento.id}`, { method: "DELETE" });
+
+      setEventos((atuais) =>
+        (atuais ?? []).filter((item) => item.id !== evento.id),
+      );
+      setMensagem("Evento removido.");
+    } catch (err) {
+      setMensagem(mensagemDoErro(err, "Não foi possível excluir o evento."));
+    }
   }
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC] text-[#0F172A]">
+    <main className="text-[#0F172A]">
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <p className="mb-2 text-sm font-medium text-slate-500">
-            Painel administrativo / Eventos
+            Eventos / Meus eventos
           </p>
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
             Gerenciar eventos
           </h1>
           <p className="mt-2 text-sm leading-6 text-slate-500 sm:text-base">
-            Cadastre, organize e acompanhe os eventos da plataforma.
+            Crie, edite e acompanhe os eventos que você organiza.
           </p>
         </div>
 
@@ -122,28 +181,58 @@ export default function GerenciarEventosPage() {
         </button>
       </div>
 
-      <EventosIndicadores
-        total={eventos.length}
-        categorias={new Set(eventos.map((evento) => evento.categoria)).size}
-        resultados={eventosFiltrados.length}
-      />
+      {erro && (
+        <div
+          role="alert"
+          className="rounded-2xl border border-red-200 bg-white p-7 text-center"
+        >
+          <b className="text-lg">Não foi possível carregar</b>
+          <p className="mb-4 mt-1.5 text-slate-500">{erro}</p>
+          <button
+            type="button"
+            onClick={tentarNovamente}
+            className="h-11 rounded-xl bg-[#EA580C] px-6 text-[15px] font-bold text-white transition hover:bg-[#C2410C]"
+          >
+            Tentar novamente
+          </button>
+        </div>
+      )}
 
-      <EventosLista
-        eventos={eventosFiltrados}
-        busca={busca}
-        mensagem={mensagem}
-        onBuscaChange={setBusca}
-        onEditar={abrirEdicao}
-        onExcluir={excluirEvento}
-        onFecharMensagem={() => setMensagem("")}
-      />
+      {eventos === null && !erro && (
+        <div
+          aria-busy="true"
+          className="h-64 animate-pulse rounded-xl border border-slate-200 bg-white"
+        />
+      )}
+
+      {eventos && (
+        <>
+          <EventosIndicadores
+            total={meusEventos.length}
+            locais={new Set(meusEventos.map((evento) => evento.location)).size}
+            resultados={eventosFiltrados.length}
+          />
+
+          <EventosLista
+            eventos={eventosFiltrados}
+            busca={busca}
+            mensagem={mensagem}
+            onBuscaChange={setBusca}
+            onEditar={abrirEdicao}
+            onExcluir={(evento) => void excluirEvento(evento)}
+            onFecharMensagem={() => setMensagem("")}
+          />
+        </>
+      )}
 
       <EventoFormModal
         aberto={modalAberto}
         eventoEditando={eventoEditando}
         form={form}
+        salvando={salvando}
+        erro={erroForm}
         onFormChange={setForm}
-        onSalvar={salvarEvento}
+        onSalvar={(e) => void salvarEvento(e)}
         onFechar={() => setModalAberto(false)}
       />
     </main>

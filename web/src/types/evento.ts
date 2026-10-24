@@ -1,40 +1,46 @@
-
+// Mesmo formato do model Event da API (id é cuid; date vem como ISO).
 export type Evento = {
-  id: number;
-  titulo: string;
-  categoria: string;
-  data: string;
-  horario: string;
-  local: string;
-  descricao: string;
+  id: string;
+  title: string;
+  description: string;
+  date: string; // "YYYY-MM-DD" ou ISO completo, como a API devolve
+  time: string; // "HH:mm"
+  location: string;
+  imageUrl: string;
+  ownerId: string; // organizador (quem criou o evento)
+  registrationsCount: number;
 };
 
-export const eventosIniciais: Evento[] = [
-  {
-    id: 1,
-    titulo: "Tech Summit",
-    categoria: "Tecnologia",
-    data: "15/11/2026",
-    horario: "09:00",
-    local: "Teresina, PI",
-    descricao: "Um encontro sobre tecnologia e inovação.",
-  },
-  {
-    id: 2,
-    titulo: "Dev Experience",
-    categoria: "Desenvolvimento",
-    data: "22/11/2026",
-    horario: "14:30",
-    local: "Teresina, PI",
-    descricao: "Compartilhamento de experiências em desenvolvimento.",
-  },
-  {
-    id: 3,
-    titulo: "Innovation Day",
-    categoria: "Inovação",
-    data: "05/12/2026",
-    horario: "19:00",
-    local: "Teresina, PI",
-    descricao: "Ideias e soluções para o futuro.",
-  },
+export type Inscricao = {
+  id: string;
+  userId: string;
+  eventId: string;
+  createdAt: string;
+};
+
+const meses = [
+  "JAN",
+  "FEV",
+  "MAR",
+  "ABR",
+  "MAI",
+  "JUN",
+  "JUL",
+  "AGO",
+  "SET",
+  "OUT",
+  "NOV",
+  "DEZ",
 ];
+
+// "2026-11-15" ou "2026-11-15T00:00:00.000Z" -> "15/11/2026"
+export function formatarData(date: string) {
+  const [ano, mes, dia] = date.slice(0, 10).split("-");
+  return `${dia}/${mes}/${ano}`;
+}
+
+// "2026-11-15..." -> { dia: "15", mes: "NOV" }
+export function partesDaData(date: string) {
+  const [, mes, dia] = date.slice(0, 10).split("-");
+  return { dia, mes: meses[Number(mes) - 1] ?? "" };
+}

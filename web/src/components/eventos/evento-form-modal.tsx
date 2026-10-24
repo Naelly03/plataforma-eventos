@@ -4,19 +4,17 @@
 import type { FormEvent } from "react";
 import type { Evento } from "@/types/evento";
 
-export type EventoForm = {
-  titulo: string;
-  categoria: string;
-  data: string;
-  horario: string;
-  local: string;
-  descricao: string;
-};
+export type EventoForm = Pick<
+  Evento,
+  "title" | "description" | "date" | "time" | "location" | "imageUrl"
+>;
 
 type EventoFormModalProps = {
   aberto: boolean;
   eventoEditando: Evento | null;
   form: EventoForm;
+  salvando: boolean;
+  erro: string;
   onFormChange: (form: EventoForm) => void;
   onSalvar: (e: FormEvent<HTMLFormElement>) => void;
   onFechar: () => void;
@@ -29,6 +27,8 @@ export default function EventoFormModal({
   aberto,
   eventoEditando,
   form,
+  salvando,
+  erro,
   onFormChange,
   onSalvar,
   onFechar,
@@ -73,15 +73,16 @@ export default function EventoFormModal({
 
         <form onSubmit={onSalvar} className="space-y-4 p-5 sm:p-6">
           <div>
-            <label htmlFor="titulo" className="mb-1.5 block text-sm font-medium">
-              Nome do evento
+            <label htmlFor="title" className="mb-1.5 block text-sm font-medium">
+              Título
             </label>
             <input
-              id="titulo"
+              id="title"
               required
+              minLength={3}
               maxLength={120}
-              value={form.titulo}
-              onChange={(e) => atualizarCampo("titulo", e.target.value)}
+              value={form.title}
+              onChange={(e) => atualizarCampo("title", e.target.value)}
               placeholder="Ex.: Tech Summit"
               className={campoClass}
             />
@@ -89,95 +90,108 @@ export default function EventoFormModal({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label htmlFor="categoria" className="mb-1.5 block text-sm font-medium">
-                Categoria
-              </label>
-              <input
-                id="categoria"
-                required
-                maxLength={60}
-                value={form.categoria}
-                onChange={(e) => atualizarCampo("categoria", e.target.value)}
-                placeholder="Ex.: Tecnologia"
-                className={campoClass}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="data" className="mb-1.5 block text-sm font-medium">
+              <label htmlFor="date" className="mb-1.5 block text-sm font-medium">
                 Data
               </label>
               <input
-                id="data"
+                id="date"
                 required
                 type="date"
-                value={form.data}
-                onChange={(e) => atualizarCampo("data", e.target.value)}
+                value={form.date}
+                onChange={(e) => atualizarCampo("date", e.target.value)}
                 className={campoClass}
               />
             </div>
-          </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label htmlFor="horario" className="mb-1.5 block text-sm font-medium">
+              <label htmlFor="time" className="mb-1.5 block text-sm font-medium">
                 Horário
               </label>
               <input
-                id="horario"
+                id="time"
                 required
                 type="time"
-                value={form.horario}
-                onChange={(e) => atualizarCampo("horario", e.target.value)}
-                className={campoClass}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="local" className="mb-1.5 block text-sm font-medium">
-                Local
-              </label>
-              <input
-                id="local"
-                required
-                maxLength={160}
-                value={form.local}
-                onChange={(e) => atualizarCampo("local", e.target.value)}
-                placeholder="Ex.: Teresina, PI"
+                value={form.time}
+                onChange={(e) => atualizarCampo("time", e.target.value)}
                 className={campoClass}
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="descricao" className="mb-1.5 block text-sm font-medium">
+            <label htmlFor="location" className="mb-1.5 block text-sm font-medium">
+              Local
+            </label>
+            <input
+              id="location"
+              required
+              maxLength={160}
+              value={form.location}
+              onChange={(e) => atualizarCampo("location", e.target.value)}
+              placeholder="Ex.: Teresina, PI"
+              className={campoClass}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="imageUrl" className="mb-1.5 block text-sm font-medium">
+              URL da imagem
+            </label>
+            <input
+              id="imageUrl"
+              required
+              type="url"
+              value={form.imageUrl}
+              onChange={(e) => atualizarCampo("imageUrl", e.target.value)}
+              placeholder="https://exemplo.com/imagem.jpg"
+              className={campoClass}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="description" className="mb-1.5 block text-sm font-medium">
               Descrição
             </label>
             <textarea
-              id="descricao"
+              id="description"
               required
               maxLength={1000}
               rows={3}
-              value={form.descricao}
-              onChange={(e) => atualizarCampo("descricao", e.target.value)}
+              value={form.description}
+              onChange={(e) => atualizarCampo("description", e.target.value)}
               placeholder="Descreva o objetivo do evento..."
               className={`${campoClass} resize-y`}
             />
           </div>
 
+          {erro && (
+            <p
+              role="alert"
+              className="rounded-lg bg-red-50 p-3 text-sm text-red-700"
+            >
+              {erro}
+            </p>
+          )}
+
           <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={onFechar}
-              className="rounded-lg border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+              disabled={salvando}
+              className="rounded-lg border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-60"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="rounded-lg bg-[#EA580C] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#C2410C]"
+              disabled={salvando}
+              className="rounded-lg bg-[#EA580C] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#C2410C] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {eventoEditando ? "Salvar alterações" : "Cadastrar evento"}
+              {salvando
+                ? "Salvando..."
+                : eventoEditando
+                  ? "Salvar alterações"
+                  : "Cadastrar evento"}
             </button>
           </div>
         </form>

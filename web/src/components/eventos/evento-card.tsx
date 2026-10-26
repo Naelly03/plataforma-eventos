@@ -35,7 +35,12 @@ export default function EventoCard({
 
         <div className="min-w-0">
           <h3 className="text-[22px] font-bold leading-tight">
-            {evento.title}
+            <Link
+              href={`/eventos/${evento.id}`}
+              className="hover:text-orange-700"
+            >
+              {evento.title}
+            </Link>
           </h3>
           <span className="text-sm font-medium tabular-nums text-slate-500">
             {evento.time} · {evento.location}
@@ -66,7 +71,7 @@ export default function EventoCard({
 
         {organizador ? (
           <Link
-            href="/eventos/gerenciar"
+            href={`/eventos/${evento.id}`}
             className="h-10 rounded-[10px] bg-orange-50 px-4 py-2 text-[15px] font-bold text-orange-700 transition hover:bg-orange-100"
           >
             Gerenciar

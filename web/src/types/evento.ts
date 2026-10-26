@@ -18,6 +18,26 @@ export type Inscricao = {
   createdAt: string;
 };
 
+// Inscrição como o organizador a vê (com os dados do participante)
+export type Inscrito = Inscricao & {
+  user: { id: string; name: string; email: string };
+};
+
+const mesesLongos = [
+  "janeiro",
+  "fevereiro",
+  "março",
+  "abril",
+  "maio",
+  "junho",
+  "julho",
+  "agosto",
+  "setembro",
+  "outubro",
+  "novembro",
+  "dezembro",
+];
+
 const meses = [
   "JAN",
   "FEV",
@@ -37,6 +57,12 @@ const meses = [
 export function formatarData(date: string) {
   const [ano, mes, dia] = date.slice(0, 10).split("-");
   return `${dia}/${mes}/${ano}`;
+}
+
+// "2026-11-15..." -> "15 de novembro de 2026"
+export function dataLonga(date: string) {
+  const [ano, mes, dia] = date.slice(0, 10).split("-");
+  return `${Number(dia)} de ${mesesLongos[Number(mes) - 1] ?? ""} de ${ano}`;
 }
 
 // "2026-11-15..." -> { dia: "15", mes: "NOV" }

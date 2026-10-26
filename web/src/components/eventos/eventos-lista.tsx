@@ -1,6 +1,7 @@
 
 "use client";
 
+import Link from "next/link";
 import { formatarData, type Evento } from "@/types/evento";
 
 type EventosListaProps = {
@@ -88,7 +89,12 @@ export default function EventosLista({
                   <tr key={evento.id} className="transition hover:bg-slate-50">
                     <td className="px-5 py-4">
                       <p className="font-semibold text-slate-800">
-                        {evento.title}
+                        <Link
+                          href={`/eventos/${evento.id}`}
+                          className="hover:text-orange-700"
+                        >
+                          {evento.title}
+                        </Link>
                       </p>
                       <p className="mt-1 max-w-xs truncate text-xs text-slate-500">
                         {evento.description}
@@ -135,7 +141,9 @@ export default function EventosLista({
                 className="rounded-lg border border-slate-200 p-4"
               >
                 <div>
-                  <h3 className="font-bold">{evento.title}</h3>
+                  <h3 className="font-bold">
+                    <Link href={`/eventos/${evento.id}`}>{evento.title}</Link>
+                  </h3>
                   <p className="mt-1 text-sm text-slate-500">
                     {formatarData(evento.date)} · {evento.time}
                   </p>

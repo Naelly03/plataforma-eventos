@@ -15,7 +15,7 @@ type EventosListaProps = {
 };
 
 const campoClass =
-  "w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#EA580C] focus:ring-2 focus:ring-orange-100";
+  "w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#EA580C] focus:ring-2 focus:ring-orange-100";
 
 export default function EventosLista({
   eventos,
@@ -30,8 +30,8 @@ export default function EventosLista({
     <section className="overflow-hidden rounded-xl border border-slate-200 bg-white">
       <div className="flex flex-col gap-4 border-b border-slate-100 p-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-lg font-bold">Todos os eventos</h2>
-          <p className="mt-1 text-sm text-slate-500">
+          <h2 className="type-h3">Todos os eventos</h2>
+          <p className="mt-1 type-small text-slate-500">
             Consulte e edite os eventos cadastrados.
           </p>
         </div>
@@ -49,12 +49,12 @@ export default function EventosLista({
       {mensagem && (
         <div
           role="status"
-          className="flex items-center justify-between gap-3 border-b border-orange-100 bg-orange-50 px-5 py-3 text-sm text-orange-800"
+          className="flex items-center justify-between gap-3 border-b border-orange-100 bg-orange-50 px-5 py-3 type-small text-orange-800"
         >
           <span>{mensagem}</span>
           <button
             onClick={onFecharMensagem}
-            className="font-semibold"
+            className="font-bold"
             aria-label="Fechar mensagem"
           >
             ×
@@ -64,21 +64,21 @@ export default function EventosLista({
 
       {eventos.length === 0 ? (
         <div className="px-5 py-16 text-center">
-          <h3 className="font-semibold">Nenhum evento encontrado</h3>
-          <p className="mt-1 text-sm text-slate-500">
+          <h3 className="type-h3">Nenhum evento encontrado</h3>
+          <p className="mt-1 type-small text-slate-500">
             Tente outro termo de busca ou cadastre um novo evento.
           </p>
         </div>
       ) : (
         <>
           <div className="hidden overflow-x-auto md:block">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+            <table className="w-full text-left type-small">
+              <thead className="bg-slate-50 font-bold text-slate-600">
                 <tr>
-                  <th className="px-5 py-4 font-semibold">Evento</th>
-                  <th className="px-5 py-4 font-semibold">Data e hora</th>
-                  <th className="px-5 py-4 font-semibold">Local</th>
-                  <th className="px-5 py-4 text-right font-semibold">
+                  <th className="px-5 py-4">Evento</th>
+                  <th className="px-5 py-4">Data e hora</th>
+                  <th className="px-5 py-4">Local</th>
+                  <th className="px-5 py-4 text-right">
                     Ações
                   </th>
                 </tr>
@@ -88,7 +88,7 @@ export default function EventosLista({
                 {eventos.map((evento) => (
                   <tr key={evento.id} className="transition hover:bg-slate-50">
                     <td className="px-5 py-4">
-                      <p className="font-semibold text-slate-800">
+                      <p className="font-bold text-slate-900">
                         <Link
                           href={`/eventos/${evento.id}`}
                           className="hover:text-orange-700"
@@ -96,14 +96,14 @@ export default function EventosLista({
                           {evento.title}
                         </Link>
                       </p>
-                      <p className="mt-1 max-w-xs truncate text-xs text-slate-500">
+                      <p className="mt-1 max-w-xs truncate type-small text-slate-500">
                         {evento.description}
                       </p>
                     </td>
 
                     <td className="whitespace-nowrap px-5 py-4">
-                      <p className="font-medium">{formatarData(evento.date)}</p>
-                      <p className="mt-1 text-xs text-slate-500">
+                      <p className="type-label text-slate-900">{formatarData(evento.date)}</p>
+                      <p className="mt-1 type-label text-slate-500">
                         {evento.time}
                       </p>
                     </td>
@@ -116,13 +116,13 @@ export default function EventosLista({
                       <div className="flex justify-end gap-2">
                         <button
                           onClick={() => onEditar(evento)}
-                          className="rounded-md border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-orange-50 hover:text-orange-700"
+                          className="rounded-md border border-slate-200 px-3 py-2 type-button text-slate-600 hover:bg-orange-50 hover:text-orange-700"
                         >
                           Editar
                         </button>
                         <button
                           onClick={() => onExcluir(evento)}
-                          className="rounded-md border border-slate-200 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50"
+                          className="rounded-md border border-slate-200 px-3 py-2 type-button text-red-600 hover:bg-red-50"
                         >
                           Excluir
                         </button>
@@ -141,31 +141,31 @@ export default function EventosLista({
                 className="rounded-lg border border-slate-200 p-4"
               >
                 <div>
-                  <h3 className="font-bold">
+                  <h3 className="type-h3">
                     <Link href={`/eventos/${evento.id}`}>{evento.title}</Link>
                   </h3>
-                  <p className="mt-1 text-sm text-slate-500">
+                  <p className="mt-1 type-label text-slate-500">
                     {formatarData(evento.date)} · {evento.time}
                   </p>
                 </div>
 
-                <p className="mt-3 text-sm text-slate-600">
+                <p className="mt-3 type-small text-slate-600">
                   {evento.location}
                 </p>
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 type-small text-slate-500">
                   {evento.description}
                 </p>
 
                 <div className="mt-4 flex gap-2 border-t border-slate-100 pt-3">
                   <button
                     onClick={() => onEditar(evento)}
-                    className="flex-1 rounded-lg border border-slate-200 py-2 text-sm font-semibold hover:bg-orange-50"
+                    className="flex-1 rounded-lg border border-slate-200 py-2 type-button hover:bg-orange-50"
                   >
                     Editar
                   </button>
                   <button
                     onClick={() => onExcluir(evento)}
-                    className="flex-1 rounded-lg border border-slate-200 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
+                    className="flex-1 rounded-lg border border-slate-200 py-2 type-button text-red-600 hover:bg-red-50"
                   >
                     Excluir
                   </button>
@@ -176,7 +176,7 @@ export default function EventosLista({
         </>
       )}
 
-      <div className="border-t border-slate-100 px-5 py-4 text-xs text-slate-500">
+      <div className="border-t border-slate-100 px-5 py-4 type-small text-slate-500">
         Exibindo {eventos.length} resultado(s) da busca
       </div>
     </section>

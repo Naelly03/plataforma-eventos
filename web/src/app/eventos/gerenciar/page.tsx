@@ -173,23 +173,23 @@ export default function GerenciarEventosPage() {
   }
 
   return (
-    <main className="text-[#0F172A]">
+    <main>
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <p className="mb-2 text-sm font-medium text-slate-500">
+          <p className="mb-2 type-label text-slate-500">
             Eventos / Meus eventos
           </p>
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+          <h1 className="type-h1">
             Gerenciar eventos
           </h1>
-          <p className="mt-2 text-sm leading-6 text-slate-500 sm:text-base">
+          <p className="mt-2 type-body text-slate-500">
             Crie, edite e acompanhe os eventos que você organiza.
           </p>
         </div>
 
         <button
           onClick={abrirCadastro}
-          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-[#EA580C] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#C2410C] focus:outline-none focus:ring-2 focus:ring-orange-300 focus:ring-offset-2"
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-[#EA580C] px-5 py-3 type-button text-white shadow-sm transition hover:bg-[#C2410C] focus:outline-none focus:ring-2 focus:ring-orange-300 focus:ring-offset-2"
         >
           <span className="text-lg">+</span>
           Novo evento
@@ -201,12 +201,12 @@ export default function GerenciarEventosPage() {
           role="alert"
           className="rounded-2xl border border-red-200 bg-white p-7 text-center"
         >
-          <b className="text-lg">Não foi possível carregar</b>
+          <b className="type-h3">Não foi possível carregar</b>
           <p className="mb-4 mt-1.5 text-slate-500">{erro}</p>
           <button
             type="button"
             onClick={tentarNovamente}
-            className="h-11 rounded-xl bg-[#EA580C] px-6 text-[15px] font-bold text-white transition hover:bg-[#C2410C]"
+            className="h-11 rounded-xl bg-[#EA580C] px-6 type-button text-white transition hover:bg-[#C2410C]"
           >
             Tentar novamente
           </button>

@@ -53,13 +53,13 @@ export default function DashboardShell({
           <nav className="flex items-center gap-2">
             <Link
               href="/login"
-              className="rounded-[10px] px-4 py-2.5 text-[15px] font-bold text-slate-700 transition hover:bg-slate-100"
+              className="rounded-[10px] px-4 py-2.5 type-button text-slate-700 transition hover:bg-slate-100"
             >
               Entrar
             </Link>
             <Link
               href="/cadastro"
-              className="rounded-[10px] bg-linear-to-r from-orange-700 to-orange-600 px-[18px] py-2.5 text-[15px] font-bold text-white shadow-[0_4px_14px_rgba(194,65,12,0.28)] transition hover:brightness-110"
+              className="rounded-[10px] bg-linear-to-r from-orange-700 to-orange-600 px-[18px] py-2.5 type-button text-white shadow-[0_4px_14px_rgba(194,65,12,0.28)] transition hover:brightness-110"
             >
               Criar conta
             </Link>
@@ -87,7 +87,7 @@ export default function DashboardShell({
                 key={item.href}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={`rounded-[10px] px-3 py-2.5 text-[15px] font-bold transition sm:px-4 ${
+                className={`rounded-[10px] px-3 py-2.5 type-button transition sm:px-4 ${
                   active
                     ? "bg-slate-100 text-slate-900"
                     : "text-slate-600 hover:bg-slate-50"
@@ -110,7 +110,7 @@ export default function DashboardShell({
           <button
             type="button"
             onClick={handleLogout}
-            className="rounded-[10px] border border-slate-200 bg-white px-4 py-[9px] text-[15px] font-bold text-slate-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+            className="rounded-[10px] border border-slate-200 bg-white px-4 py-[9px] type-button text-slate-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
           >
             Sair
           </button>

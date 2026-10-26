@@ -21,7 +21,7 @@ export default function EventoCard({ evento, organizador }: EventoCardProps) {
         </div>
 
         <div className="min-w-0">
-          <h3 className="text-[22px] font-bold leading-tight">
+          <h3 className="type-h3">
             <Link
               href={`/eventos/${evento.id}`}
               className="hover:text-orange-700"
@@ -29,31 +29,31 @@ export default function EventoCard({ evento, organizador }: EventoCardProps) {
               {evento.title}
             </Link>
           </h3>
-          <span className="text-sm font-medium tabular-nums text-slate-500">
+          <span className="type-label text-slate-500">
             {evento.time} · {evento.location}
           </span>
         </div>
       </div>
 
-      <p className="line-clamp-2 text-sm leading-relaxed text-slate-600">
+      <p className="line-clamp-2 type-small text-slate-600">
         {evento.description}
       </p>
 
       <div className="mt-auto flex items-center justify-between gap-3 border-t border-slate-100 pt-3.5">
         <div className="flex flex-wrap items-center gap-2">
           {organizador && (
-            <span className="rounded-full bg-orange-50 px-2.5 py-1 text-sm font-medium text-orange-700">
+            <span className="rounded-full bg-green-100 px-2.5 py-1 type-label text-green-700">
               Organizador
             </span>
           )}
-          <span className="text-sm font-medium tabular-nums text-slate-500">
+          <span className="type-label text-slate-500">
             {total} {total === 1 ? "inscrito" : "inscritos"}
           </span>
         </div>
 
         <Link
           href={`/eventos/${evento.id}`}
-          className="h-10 rounded-[10px] bg-orange-50 px-4 py-2 text-[15px] font-bold text-orange-700 transition hover:bg-orange-100"
+          className="h-10 rounded-[10px] bg-orange-50 px-4 py-2 type-button text-orange-700 transition hover:bg-orange-100"
         >
           {organizador ? "Gerenciar" : "Ver detalhes"}
         </Link>

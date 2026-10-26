@@ -52,10 +52,10 @@ export default function EventosPage() {
     <div>
       <header className="mb-9 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="mb-1.5 text-[44px] font-extrabold leading-[1.15] tracking-tight">
+          <h1 className="mb-1.5 type-h1">
             Olá{primeiroNome ? `, ${primeiroNome}` : ""}
           </h1>
-          <p className="max-w-[65ch] text-lg text-slate-500">
+          <p className="max-w-[65ch] type-body text-slate-500">
             {eventos
               ? `Há ${proximos.length} ${
                   proximos.length === 1 ? "evento próximo" : "eventos próximos"
@@ -66,7 +66,7 @@ export default function EventosPage() {
 
         <Link
           href="/eventos/gerenciar"
-          className="flex items-center gap-2 rounded-xl bg-linear-to-r from-orange-700 to-orange-600 px-[22px] py-[13px] text-[15px] font-bold text-white shadow-[0_6px_18px_rgba(194,65,12,0.28)] transition hover:brightness-110"
+          className="flex items-center gap-2 rounded-xl bg-linear-to-r from-orange-700 to-orange-600 px-[22px] py-[13px] type-button text-white shadow-[0_6px_18px_rgba(194,65,12,0.28)] transition hover:brightness-110"
         >
           <span className="text-xl font-extrabold leading-none">+</span>
           Criar novo evento
@@ -95,12 +95,12 @@ export default function EventosPage() {
           <div className="mx-auto mb-3.5 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-2xl font-extrabold text-red-600">
             !
           </div>
-          <b className="text-lg">Não foi possível carregar</b>
+          <b className="type-h3">Não foi possível carregar</b>
           <p className="mb-4 mt-1.5 text-slate-500">{erro}</p>
           <button
             type="button"
             onClick={tentarNovamente}
-            className="h-11 rounded-xl bg-linear-to-r from-orange-700 to-orange-600 px-6 text-[15px] font-bold text-white transition hover:brightness-110"
+            className="h-11 rounded-xl bg-linear-to-r from-orange-700 to-orange-600 px-6 type-button text-white transition hover:brightness-110"
           >
             Tentar novamente
           </button>
@@ -109,7 +109,7 @@ export default function EventosPage() {
 
       {eventos && (
         <>
-          <h2 className="mb-4 text-[32px] font-extrabold leading-tight tracking-[-0.005em]">
+          <h2 className="mb-4 type-h2">
             Próximos eventos
           </h2>
 
@@ -131,7 +131,7 @@ export default function EventosPage() {
 
           {anteriores.length > 0 && (
             <>
-              <h2 className="mb-4 text-[32px] font-extrabold leading-tight tracking-[-0.005em]">
+              <h2 className="mb-4 type-h2">
                 Eventos anteriores
               </h2>
 
@@ -150,14 +150,14 @@ export default function EventosPage() {
                           {evento.title}
                         </Link>
                       </div>
-                      <div className="text-sm font-medium tabular-nums text-slate-500">
+                      <div className="type-label text-slate-500">
                         {formatarData(evento.date)} · {evento.time} ·{" "}
                         {evento.location}
                       </div>
                     </div>
 
                     {evento.ownerId === user?.id && (
-                      <span className="whitespace-nowrap rounded-full bg-orange-50 px-2.5 py-1 text-sm font-medium text-orange-700">
+                      <span className="whitespace-nowrap rounded-full bg-green-100 px-2.5 py-1 type-label text-green-700">
                         Organizador
                       </span>
                     )}

@@ -48,7 +48,7 @@ export default function EventosIndicadores({
           }`}
         >
           <div className="flex items-center justify-between">
-            <p className="text-sm font-medium text-slate-500">
+            <p className="type-label text-slate-500">
               {item.titulo}
             </p>
 
@@ -63,9 +63,9 @@ export default function EventosIndicadores({
             </span>
           </div>
 
-          <p className="mt-4 text-3xl font-bold">{item.valor}</p>
+          <p className="mt-4 type-h2 tabular-nums">{item.valor}</p>
 
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 type-small text-slate-500">
             {item.descricao}
           </p>
         </article>

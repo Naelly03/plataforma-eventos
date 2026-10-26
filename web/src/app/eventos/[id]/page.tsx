@@ -18,7 +18,7 @@ import {
 } from "@/types/evento";
 
 const botaoSecundario =
-  "h-[46px] rounded-xl border px-[22px] text-base font-bold transition";
+  "h-[46px] rounded-xl border px-[22px] type-button transition";
 
 function formularioDe(evento: Evento): EventoForm {
   return {
@@ -172,12 +172,12 @@ export default function EventoDetalhesPage() {
           role="alert"
           className="mt-4 rounded-2xl border border-red-200 bg-white p-7 text-center"
         >
-          <b className="text-lg">Não foi possível carregar</b>
+          <b className="type-h3">Não foi possível carregar</b>
           <p className="mb-4 mt-1.5 text-slate-500">{erro}</p>
           <button
             type="button"
             onClick={tentarNovamente}
-            className="h-11 rounded-xl bg-linear-to-r from-orange-700 to-orange-600 px-6 text-[15px] font-bold text-white transition hover:brightness-110"
+            className="h-11 rounded-xl bg-linear-to-r from-orange-700 to-orange-600 px-6 type-button text-white transition hover:brightness-110"
           >
             Tentar novamente
           </button>
@@ -206,10 +206,10 @@ export default function EventoDetalhesPage() {
 
       <header className="mb-7 mt-3 flex flex-wrap items-end justify-between gap-5">
         <div className="min-w-0">
-          <h1 className="mb-2 text-[44px] font-extrabold leading-[1.15] tracking-tight">
+          <h1 className="mb-2 type-h1">
             {evento.title}
           </h1>
-          <p className="text-lg font-medium tabular-nums text-slate-600">
+          <p className="type-body font-medium tabular-nums text-slate-600">
             {dataLonga(evento.date)} · {evento.time} · {evento.location}
           </p>
         </div>
@@ -240,14 +240,14 @@ export default function EventoDetalhesPage() {
       {aviso && (
         <div
           role="alert"
-          className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+          className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 type-small text-red-700"
         >
           <span>{aviso}</span>
           <button
             type="button"
             onClick={() => setAviso("")}
             aria-label="Fechar aviso"
-            className="font-semibold"
+            className="font-bold"
           >
             ×
           </button>
@@ -260,7 +260,7 @@ export default function EventoDetalhesPage() {
         }`}
       >
         <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-          <div className="relative flex h-[200px] items-center justify-center bg-linear-to-br from-orange-50 to-orange-100 text-sm font-medium text-orange-800">
+          <div className="relative flex h-[200px] items-center justify-center bg-linear-to-br from-orange-50 to-orange-100 type-label text-orange-800">
             {imagemFalhou ? (
               "Imagem indisponível"
             ) : (
@@ -277,27 +277,27 @@ export default function EventoDetalhesPage() {
 
           <div className="flex flex-col gap-[18px] p-[26px]">
             <div>
-              <h2 className="mb-2 text-[22px] font-bold leading-tight">
+              <h2 className="mb-2 type-h3">
                 Descrição
               </h2>
-              <p className="max-w-[65ch] whitespace-pre-line leading-normal text-slate-600">
+              <p className="type-body max-w-[65ch] whitespace-pre-line text-slate-600">
                 {evento.description}
               </p>
             </div>
 
             <dl className="grid grid-cols-2 gap-4">
               <div>
-                <dt className="text-sm font-medium text-slate-500">Data</dt>
+                <dt className="type-label text-slate-500">Data</dt>
                 <dd className="font-bold tabular-nums">
                   {formatarData(evento.date)}
                 </dd>
               </div>
               <div>
-                <dt className="text-sm font-medium text-slate-500">Horário</dt>
+                <dt className="type-label text-slate-500">Horário</dt>
                 <dd className="font-bold tabular-nums">{evento.time}</dd>
               </div>
               <div className="col-span-2">
-                <dt className="text-sm font-medium text-slate-500">Local</dt>
+                <dt className="type-label text-slate-500">Local</dt>
                 <dd className="font-bold">{evento.location}</dd>
               </div>
             </dl>

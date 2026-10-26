@@ -21,7 +21,7 @@ type EventoFormModalProps = {
 };
 
 const campoClass =
-  "w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#EA580C] focus:ring-2 focus:ring-orange-100";
+  "w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#EA580C] focus:ring-2 focus:ring-orange-100";
 
 export default function EventoFormModal({
   aberto,
@@ -54,10 +54,10 @@ export default function EventoFormModal({
       >
         <div className="flex items-start justify-between border-b border-slate-100 p-5 sm:p-6">
           <div>
-            <h2 id="modal-titulo" className="text-xl font-bold">
+            <h2 id="modal-titulo" className="type-h3">
               {eventoEditando ? "Editar evento" : "Novo evento"}
             </h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 type-small text-slate-500">
               Preencha as informações do evento.
             </p>
           </div>
@@ -73,7 +73,7 @@ export default function EventoFormModal({
 
         <form onSubmit={onSalvar} className="space-y-4 p-5 sm:p-6">
           <div>
-            <label htmlFor="title" className="mb-1.5 block text-sm font-medium">
+            <label htmlFor="title" className="mb-1.5 block type-label">
               Título
             </label>
             <input
@@ -90,7 +90,7 @@ export default function EventoFormModal({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label htmlFor="date" className="mb-1.5 block text-sm font-medium">
+              <label htmlFor="date" className="mb-1.5 block type-label">
                 Data
               </label>
               <input
@@ -104,7 +104,7 @@ export default function EventoFormModal({
             </div>
 
             <div>
-              <label htmlFor="time" className="mb-1.5 block text-sm font-medium">
+              <label htmlFor="time" className="mb-1.5 block type-label">
                 Horário
               </label>
               <input
@@ -119,7 +119,7 @@ export default function EventoFormModal({
           </div>
 
           <div>
-            <label htmlFor="location" className="mb-1.5 block text-sm font-medium">
+            <label htmlFor="location" className="mb-1.5 block type-label">
               Local
             </label>
             <input
@@ -134,7 +134,7 @@ export default function EventoFormModal({
           </div>
 
           <div>
-            <label htmlFor="imageUrl" className="mb-1.5 block text-sm font-medium">
+            <label htmlFor="imageUrl" className="mb-1.5 block type-label">
               URL da imagem
             </label>
             <input
@@ -149,7 +149,7 @@ export default function EventoFormModal({
           </div>
 
           <div>
-            <label htmlFor="description" className="mb-1.5 block text-sm font-medium">
+            <label htmlFor="description" className="mb-1.5 block type-label">
               Descrição
             </label>
             <textarea
@@ -167,7 +167,7 @@ export default function EventoFormModal({
           {erro && (
             <p
               role="alert"
-              className="rounded-lg bg-red-50 p-3 text-sm text-red-700"
+              className="rounded-lg bg-red-50 p-3 type-small text-red-700"
             >
               {erro}
             </p>
@@ -178,14 +178,14 @@ export default function EventoFormModal({
               type="button"
               onClick={onFechar}
               disabled={salvando}
-              className="rounded-lg border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-60"
+              className="rounded-lg border border-slate-200 px-5 py-2.5 type-button text-slate-600 hover:bg-slate-50 disabled:opacity-60"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={salvando}
-              className="rounded-lg bg-[#EA580C] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#C2410C] disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-lg bg-[#EA580C] px-5 py-2.5 type-button text-white transition hover:bg-[#C2410C] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {salvando
                 ? "Salvando..."

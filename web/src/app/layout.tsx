@@ -7,6 +7,9 @@ import DashboardShell from "@/components/dashboard-shell";
 
 const figtree = Figtree({
   subsets: ["latin"],
+  weight: ["400", "500", "700", "800"],
+  display: "swap",
+  fallback: ["system-ui", "sans-serif"],
   variable: "--font-figtree",
 });
 

@@ -60,7 +60,7 @@ export default function LoginPage() {
     <main className="flex flex-1 items-center justify-center px-5 py-10">
       <div className={authCardClass}>
         <h1 className={authTitleClass}>Bem-vindo de volta</h1>
-        <p className="mb-[22px] text-slate-500">
+        <p className="mb-[22px] type-body text-slate-500">
           Entre para gerenciar seus eventos.
         </p>
 
@@ -94,7 +94,7 @@ export default function LoginPage() {
           {error && (
             <p
               role="alert"
-              className="mb-4 rounded-[10px] bg-red-50 p-3 text-sm text-red-700"
+              className="mb-4 rounded-[10px] bg-red-50 p-3 type-small text-red-700"
             >
               {error}
             </p>
@@ -105,7 +105,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="mt-5 text-center text-slate-600">
+        <p className="mt-5 text-center type-body text-slate-600">
           Não tem conta?{" "}
           <Link href="/cadastro" className={authLinkClass}>
             Cadastre-se

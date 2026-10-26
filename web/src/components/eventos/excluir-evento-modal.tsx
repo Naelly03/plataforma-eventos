@@ -31,11 +31,11 @@ export default function ExcluirEventoModal({
       >
         <h2
           id="excluir-titulo"
-          className="mb-2 text-[32px] font-extrabold leading-tight tracking-[-0.005em]"
+          className="mb-2 type-h2"
         >
           Excluir evento?
         </h2>
-        <p id="excluir-descricao" className="mb-[22px] leading-normal text-slate-600">
+        <p id="excluir-descricao" className="mb-[22px] type-body text-slate-600">
           “{titulo}” e as inscrições dele serão removidos. Essa ação não pode
           ser desfeita.
         </p>
@@ -43,7 +43,7 @@ export default function ExcluirEventoModal({
         {erro && (
           <p
             role="alert"
-            className="mb-4 rounded-[10px] bg-red-50 p-3 text-sm text-red-700"
+            className="mb-4 rounded-[10px] bg-red-50 p-3 type-small text-red-700"
           >
             {erro}
           </p>
@@ -54,7 +54,7 @@ export default function ExcluirEventoModal({
             type="button"
             onClick={onCancelar}
             disabled={excluindo}
-            className="h-12 rounded-xl border border-slate-300 bg-white text-base font-bold text-slate-700 transition hover:bg-slate-100 disabled:opacity-60"
+            className="h-12 rounded-xl border border-slate-300 bg-white type-button text-slate-700 transition hover:bg-slate-100 disabled:opacity-60"
           >
             Cancelar
           </button>
@@ -62,7 +62,7 @@ export default function ExcluirEventoModal({
             type="button"
             onClick={onConfirmar}
             disabled={excluindo}
-            className="h-12 rounded-xl bg-red-600 text-base font-bold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="h-12 rounded-xl bg-red-600 type-button text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {excluindo ? "Excluindo..." : "Excluir"}
           </button>

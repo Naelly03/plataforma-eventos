@@ -29,8 +29,8 @@ export default function InscritosLista({
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-[26px]">
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="text-[22px] font-bold leading-tight">Inscritos</h2>
-        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-sm font-medium tabular-nums text-slate-600">
+        <h2 className="type-h3">Inscritos</h2>
+        <span className="rounded-full bg-slate-100 px-2.5 py-1 type-label text-slate-600">
           {total} no total
         </span>
       </div>
@@ -63,7 +63,7 @@ export default function InscritosLista({
                   <div className="truncate font-bold leading-snug">
                     {inscrito.user.name}
                   </div>
-                  <div className="truncate text-sm font-medium text-slate-500">
+                  <div className="truncate type-label text-slate-500">
                     {inscrito.user.email} · {formatarData(inscrito.createdAt)}
                   </div>
                 </div>
@@ -72,7 +72,7 @@ export default function InscritosLista({
                   type="button"
                   onClick={() => onRemover(inscrito)}
                   disabled={removendo.includes(inscrito.id)}
-                  className="p-2 text-sm font-medium text-red-600 hover:underline disabled:opacity-60"
+                  className="p-2 type-label text-red-600 hover:underline disabled:opacity-60"
                 >
                   {removendo.includes(inscrito.id) ? "Removendo..." : "Remover"}
                 </button>
@@ -80,12 +80,12 @@ export default function InscritosLista({
             ))}
           </ul>
 
-          <p className="mt-3 text-sm tabular-nums text-slate-500">
+          <p className="mt-3 type-small tabular-nums text-slate-500">
             Mostrando {filtrados.length} de {total}
           </p>
         </>
       ) : (
-        <p className="py-8 text-center text-sm text-slate-500">
+        <p className="py-8 text-center type-small text-slate-500">
           Nenhum inscrito encontrado.
         </p>
       )}

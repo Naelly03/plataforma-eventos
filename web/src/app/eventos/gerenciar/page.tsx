@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import ExcluirEventoModal from "@/components/eventos/excluir-evento-modal";
 import EventosIndicadores from "@/components/eventos/eventos-indicadores";
 import EventosLista from "@/components/eventos/eventos-lista";
 import EventoFormModal, {
@@ -38,6 +39,11 @@ export default function GerenciarEventosPage() {
   const [salvando, setSalvando] = useState(false);
   const [erroForm, setErroForm] = useState("");
   const [tentativa, setTentativa] = useState(0);
+  const [eventoParaExcluir, setEventoParaExcluir] = useState<Evento | null>(
+    null,
+  );
+  const [excluindo, setExcluindo] = useState(false);
+  const [erroExclusao, setErroExclusao] = useState("");
 
   useEffect(() => {
     let ativo = true;
@@ -138,22 +144,31 @@ export default function GerenciarEventosPage() {
     }
   }
 
-  async function excluirEvento(evento: Evento) {
-    const confirmar = window.confirm(
-      `Deseja excluir o evento "${evento.title}"?`,
-    );
+  function pedirExclusao(evento: Evento) {
+    setErroExclusao("");
+    setEventoParaExcluir(evento);
+  }
 
-    if (!confirmar) return;
+  async function excluirEvento() {
+    if (!eventoParaExcluir) return;
+
+    setExcluindo(true);
+    setErroExclusao("");
 
     try {
-      await api<void>(`/api/events/${evento.id}`, { method: "DELETE" });
+      await api<void>(`/api/events/${eventoParaExcluir.id}`, {
+        method: "DELETE",
+      });
 
       setEventos((atuais) =>
-        (atuais ?? []).filter((item) => item.id !== evento.id),
+        (atuais ?? []).filter((item) => item.id !== eventoParaExcluir.id),
       );
       setMensagem("Evento removido.");
+      setEventoParaExcluir(null);
     } catch (err) {
-      setMensagem(mensagemDoErro(err, "Não foi possível excluir o evento."));
+      setErroExclusao(mensagemDoErro(err, "Não foi possível excluir o evento."));
+    } finally {
+      setExcluindo(false);
     }
   }
 
@@ -219,10 +234,20 @@ export default function GerenciarEventosPage() {
             mensagem={mensagem}
             onBuscaChange={setBusca}
             onEditar={abrirEdicao}
-            onExcluir={(evento) => void excluirEvento(evento)}
+            onExcluir={pedirExclusao}
             onFecharMensagem={() => setMensagem("")}
           />
         </>
+      )}
+
+      {eventoParaExcluir && (
+        <ExcluirEventoModal
+          titulo={eventoParaExcluir.title}
+          excluindo={excluindo}
+          erro={erroExclusao}
+          onConfirmar={() => void excluirEvento()}
+          onCancelar={() => setEventoParaExcluir(null)}
+        />
       )}
 
       <EventoFormModal

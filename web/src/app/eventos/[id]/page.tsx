@@ -14,7 +14,6 @@ import {
   dataLonga,
   formatarData,
   type Evento,
-  type Inscricao,
   type Inscrito,
 } from "@/types/evento";
 
@@ -39,12 +38,10 @@ export default function EventoDetalhesPage() {
 
   const [evento, setEvento] = useState<Evento | null>(null);
   const [inscritos, setInscritos] = useState<Inscrito[]>([]);
-  const [minhaInscricao, setMinhaInscricao] = useState<Inscricao | null>(null);
   const [erro, setErro] = useState("");
   const [aviso, setAviso] = useState("");
   const [tentativa, setTentativa] = useState(0);
   const [imagemFalhou, setImagemFalhou] = useState(false);
-  const [inscrevendo, setInscrevendo] = useState(false);
   const [removendo, setRemovendo] = useState<string[]>([]);
 
   const [editando, setEditando] = useState(false);
@@ -63,11 +60,8 @@ export default function EventoDetalhesPage() {
 
     let ativo = true;
 
-    Promise.all([
-      api<Evento>(`/api/events/${id}`),
-      api<Inscricao[]>("/api/registrations"),
-    ])
-      .then(async ([dados, minhas]) => {
+    api<Evento>(`/api/events/${id}`)
+      .then(async (dados) => {
         // só o organizador pode listar os inscritos
         const lista =
           dados.ownerId === userId
@@ -77,9 +71,6 @@ export default function EventoDetalhesPage() {
         if (!ativo) return;
         setEvento(dados);
         setInscritos(lista);
-        setMinhaInscricao(
-          minhas.find((inscricao) => inscricao.eventId === dados.id) ?? null,
-        );
       })
       .catch((err) => {
         if (!ativo) return;
@@ -94,37 +85,6 @@ export default function EventoDetalhesPage() {
   function tentarNovamente() {
     setErro("");
     setTentativa((atual) => atual + 1);
-  }
-
-  async function alternarInscricao() {
-    if (!evento) return;
-
-    setAviso("");
-    setInscrevendo(true);
-
-    try {
-      if (minhaInscricao) {
-        await api<void>(`/api/registrations/${minhaInscricao.id}`, {
-          method: "DELETE",
-        });
-        setMinhaInscricao(null);
-        setEvento({
-          ...evento,
-          registrationsCount: Math.max(0, evento.registrationsCount - 1),
-        });
-      } else {
-        const inscricao = await api<Inscricao>(
-          `/api/events/${evento.id}/registrations`,
-          { method: "POST" },
-        );
-        setMinhaInscricao(inscricao);
-        setEvento({ ...evento, registrationsCount: evento.registrationsCount + 1 });
-      }
-    } catch (err) {
-      setAviso(mensagemDoErro(err, "Não foi possível atualizar a inscrição."));
-    } finally {
-      setInscrevendo(false);
-    }
   }
 
   async function removerInscrito(inscrito: Inscrito) {
@@ -254,7 +214,7 @@ export default function EventoDetalhesPage() {
           </p>
         </div>
 
-        {organizador ? (
+        {organizador && (
           <div className="flex gap-2.5">
             <button
               type="button"
@@ -274,23 +234,6 @@ export default function EventoDetalhesPage() {
               Excluir
             </button>
           </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => void alternarInscricao()}
-            disabled={inscrevendo}
-            className={
-              minhaInscricao
-                ? `${botaoSecundario} border-red-200 bg-white text-red-600 hover:bg-red-50 disabled:opacity-60`
-                : "h-[46px] rounded-xl bg-linear-to-r from-orange-700 to-orange-600 px-[22px] text-base font-bold text-white shadow-[0_6px_18px_rgba(194,65,12,0.28)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
-            }
-          >
-            {inscrevendo
-              ? "Aguarde..."
-              : minhaInscricao
-                ? "Cancelar inscrição"
-                : "Inscrever-se"}
-          </button>
         )}
       </header>
 

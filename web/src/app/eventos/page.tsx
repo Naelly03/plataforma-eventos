@@ -5,33 +5,21 @@ import Link from "next/link";
 import EventoCard from "@/components/eventos/evento-card";
 import { api, mensagemDoErro } from "@/lib/api";
 import { useSessao } from "@/lib/session";
-import {
-  formatarData,
-  type Evento,
-  type Inscricao,
-} from "@/types/evento";
+import { formatarData, type Evento } from "@/types/evento";
 
 export default function EventosPage() {
   const { user } = useSessao();
 
   const [eventos, setEventos] = useState<Evento[] | null>(null);
-  const [inscricoes, setInscricoes] = useState<Inscricao[]>([]);
   const [erro, setErro] = useState("");
-  const [aviso, setAviso] = useState("");
-  const [pendentes, setPendentes] = useState<string[]>([]);
   const [tentativa, setTentativa] = useState(0);
 
   useEffect(() => {
     let ativo = true;
 
-    Promise.all([
-      api<Evento[]>("/api/events"),
-      api<Inscricao[]>("/api/registrations"),
-    ])
-      .then(([listaEventos, listaInscricoes]) => {
-        if (!ativo) return;
-        setEventos(listaEventos);
-        setInscricoes(listaInscricoes);
+    api<Evento[]>("/api/events")
+      .then((lista) => {
+        if (ativo) setEventos(lista);
       })
       .catch((err) => {
         if (!ativo) return;
@@ -48,54 +36,8 @@ export default function EventosPage() {
     setTentativa((atual) => atual + 1);
   }
 
-  function marcarPendente(id: string, ativo: boolean) {
-    setPendentes((atuais) =>
-      ativo ? [...atuais, id] : atuais.filter((item) => item !== id),
-    );
-  }
-
-  async function inscrever(evento: Evento) {
-    setAviso("");
-    marcarPendente(evento.id, true);
-
-    try {
-      const inscricao = await api<Inscricao>(
-        `/api/events/${evento.id}/registrations`,
-        { method: "POST" },
-      );
-
-      setInscricoes((atuais) => [inscricao, ...atuais]);
-    } catch (err) {
-      setAviso(mensagemDoErro(err, "Não foi possível fazer a inscrição."));
-    } finally {
-      marcarPendente(evento.id, false);
-    }
-  }
-
-  async function cancelar(evento: Evento, inscricao: Inscricao) {
-    setAviso("");
-    marcarPendente(evento.id, true);
-
-    try {
-      await api<void>(`/api/registrations/${inscricao.id}`, {
-        method: "DELETE",
-      });
-
-      setInscricoes((atuais) =>
-        atuais.filter((item) => item.id !== inscricao.id),
-      );
-    } catch (err) {
-      setAviso(mensagemDoErro(err, "Não foi possível cancelar a inscrição."));
-    } finally {
-      marcarPendente(evento.id, false);
-    }
-  }
-
   const carregando = eventos === null && !erro;
   const hoje = new Date().toLocaleDateString("sv-SE");
-  const inscricaoPorEvento = new Map(
-    inscricoes.map((inscricao) => [inscricao.eventId, inscricao]),
-  );
 
   const proximos = (eventos ?? []).filter(
     (evento) => evento.date.slice(0, 10) >= hoje,
@@ -103,9 +45,6 @@ export default function EventosPage() {
   const anteriores = (eventos ?? [])
     .filter((evento) => evento.date.slice(0, 10) < hoje)
     .reverse();
-  const inscritosNosProximos = proximos.filter((evento) =>
-    inscricaoPorEvento.has(evento.id),
-  ).length;
 
   const primeiroNome = user?.name.trim().split(" ")[0];
 
@@ -120,8 +59,8 @@ export default function EventosPage() {
             {eventos
               ? `Há ${proximos.length} ${
                   proximos.length === 1 ? "evento próximo" : "eventos próximos"
-                } e você está inscrito em ${inscritosNosProximos}.`
-              : "Descubra e inscreva-se nos próximos eventos."}
+                }.`
+              : "Acompanhe os eventos da plataforma."}
           </p>
         </div>
 
@@ -133,23 +72,6 @@ export default function EventosPage() {
           Criar novo evento
         </Link>
       </header>
-
-      {aviso && (
-        <div
-          role="alert"
-          className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-        >
-          <span>{aviso}</span>
-          <button
-            type="button"
-            onClick={() => setAviso("")}
-            aria-label="Fechar aviso"
-            className="font-semibold"
-          >
-            ×
-          </button>
-        </div>
-      )}
 
       {carregando && (
         <div
@@ -193,23 +115,13 @@ export default function EventosPage() {
 
           {proximos.length > 0 ? (
             <div className="mb-11 grid gap-5 sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))]">
-              {proximos.map((evento) => {
-                const inscricao = inscricaoPorEvento.get(evento.id);
-
-                return (
-                  <EventoCard
-                    key={evento.id}
-                    evento={evento}
-                    organizador={evento.ownerId === user?.id}
-                    inscrito={Boolean(inscricao)}
-                    pendente={pendentes.includes(evento.id)}
-                    onInscrever={() => void inscrever(evento)}
-                    onCancelar={() =>
-                      inscricao && void cancelar(evento, inscricao)
-                    }
-                  />
-                );
-              })}
+              {proximos.map((evento) => (
+                <EventoCard
+                  key={evento.id}
+                  evento={evento}
+                  organizador={evento.ownerId === user?.id}
+                />
+              ))}
             </div>
           ) : (
             <div className="mb-11 rounded-2xl border-2 border-dashed border-slate-300 p-10 text-center text-slate-500">
@@ -231,7 +143,12 @@ export default function EventosPage() {
                   >
                     <div className="min-w-0">
                       <div className="text-lg font-bold leading-tight">
-                        {evento.title}
+                        <Link
+                          href={`/eventos/${evento.id}`}
+                          className="hover:text-orange-700"
+                        >
+                          {evento.title}
+                        </Link>
                       </div>
                       <div className="text-sm font-medium tabular-nums text-slate-500">
                         {formatarData(evento.date)} · {evento.time} ·{" "}
@@ -239,9 +156,9 @@ export default function EventosPage() {
                       </div>
                     </div>
 
-                    {inscricaoPorEvento.has(evento.id) && (
-                      <span className="whitespace-nowrap rounded-full bg-green-100 px-2.5 py-1 text-sm font-medium text-green-700">
-                        Você se inscreveu
+                    {evento.ownerId === user?.id && (
+                      <span className="whitespace-nowrap rounded-full bg-orange-50 px-2.5 py-1 text-sm font-medium text-orange-700">
+                        Organizador
                       </span>
                     )}
                   </div>

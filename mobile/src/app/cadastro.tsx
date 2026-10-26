@@ -91,7 +91,7 @@ export default function CadastroScreen() {
             rotulo="Senha"
             value={senha}
             onChangeText={setSenha}
-            secureTextEntry
+            senha
             autoCapitalize="none"
             autoComplete="new-password"
             espaco={12}
@@ -100,7 +100,7 @@ export default function CadastroScreen() {
             rotulo="Confirme sua senha"
             value={confirmacao}
             onChangeText={setConfirmacao}
-            secureTextEntry
+            senha
             autoCapitalize="none"
             autoComplete="new-password"
             espaco={20}

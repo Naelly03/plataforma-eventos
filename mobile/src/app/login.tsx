@@ -66,7 +66,7 @@ export default function LoginScreen() {
             rotulo="Senha"
             value={senha}
             onChangeText={setSenha}
-            secureTextEntry
+            senha
             autoCapitalize="none"
             autoComplete="current-password"
             espaco={22}

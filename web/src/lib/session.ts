@@ -2,8 +2,8 @@
 
 import { useMemo, useSyncExternalStore } from "react";
 
-const TOKEN_KEY = "eventum_token";
-const USER_KEY = "eventum_user";
+const TOKEN_KEY = "agendou_token";
+const USER_KEY = "agendou_user";
 
 export type Usuario = {
   id: string;

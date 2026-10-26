@@ -10,7 +10,7 @@ const figtree = Figtree({
 });
 
 export const metadata: Metadata = {
-  title: "Agendei | Gestão de Eventos",
+  title: "Agendou | Gestão de Eventos",
   description: "Plataforma de gerenciamento e participação em eventos.",
 };
 

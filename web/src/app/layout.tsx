@@ -1,6 +1,7 @@
 
 import type { Metadata } from "next";
 import { Figtree } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import DashboardShell from "@/components/dashboard-shell";
 
@@ -22,7 +23,10 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className={`${figtree.variable} font-sans antialiased`}>
-        <DashboardShell>{children}</DashboardShell>
+        {/* usePathname() do shell depende da rota; em rotas dinâmicas precisa de Suspense */}
+        <Suspense fallback={null}>
+          <DashboardShell>{children}</DashboardShell>
+        </Suspense>
       </body>
     </html>
   );

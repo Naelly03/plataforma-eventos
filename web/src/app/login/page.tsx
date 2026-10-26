@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import CampoSenha from "@/components/campo-senha";
 import {
   authButtonClass,
   authCardClass,
@@ -81,14 +82,12 @@ export default function LoginPage() {
           <label htmlFor="password" className={authLabelClass}>
             Senha
           </label>
-          <input
+          <CampoSenha
             id="password"
-            type="password"
             autoComplete="current-password"
-            required
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className={`${authInputClass} mb-[22px]`}
+            onChange={setPassword}
+            className="mb-[22px]"
           />
 
           {error && (

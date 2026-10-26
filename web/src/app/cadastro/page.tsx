@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import CampoSenha from "@/components/campo-senha";
 import {
   authButtonClass,
   authCardClass,
@@ -121,15 +122,12 @@ export default function CadastroPage() {
               <label htmlFor="password" className={authLabelClass}>
                 Senha
               </label>
-              <input
+              <CampoSenha
                 id="password"
-                type="password"
                 autoComplete="new-password"
-                required
                 minLength={6}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={authInputClass}
+                onChange={setPassword}
               />
             </div>
 
@@ -137,15 +135,12 @@ export default function CadastroPage() {
               <label htmlFor="confirmPassword" className={authLabelClass}>
                 Confirmar
               </label>
-              <input
+              <CampoSenha
                 id="confirmPassword"
-                type="password"
                 autoComplete="new-password"
-                required
                 minLength={6}
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className={authInputClass}
+                onChange={setConfirmPassword}
               />
             </div>
           </div>

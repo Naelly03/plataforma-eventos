@@ -10,7 +10,6 @@ const rotasPublicas = ["/", "/login", "/cadastro"];
 
 const menuItems = [
   { label: "Eventos", href: "/eventos" },
-  { label: "Inscrições", href: "/inscricoes" },
 ];
 
 const headerClass =

@@ -1,35 +1,22 @@
 import { Image } from 'expo-image';
-import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
-import type { PropsWithChildren } from 'react';
+import type { ImageStyle, StyleProp } from 'react-native';
 
-import { gradienteDoEvento } from '@/constants/marca';
+import { Marca } from '@/constants/marca';
 
-type EventoCapaProps = PropsWithChildren<{
-  id: string;
+type EventoCapaProps = {
   imageUrl?: string;
   altura: number;
-  style?: StyleProp<ViewStyle>;
-}>;
+  style?: StyleProp<ImageStyle>;
+};
 
-// Capa do evento: a imagem da API sobre o gradiente do design. Se a imagem
-// não carregar, o gradiente continua aparecendo.
-export function EventoCapa({ id, imageUrl, altura, style, children }: EventoCapaProps) {
+// Imagem do evento; se não carregar, fica o fundo cinza.
+export function EventoCapa({ imageUrl, altura, style }: EventoCapaProps) {
   return (
-    <View
-      style={[
-        { height: altura, experimental_backgroundImage: gradienteDoEvento(id) },
-        style,
-      ]}>
-      {imageUrl ? (
-        <Image
-          source={{ uri: imageUrl }}
-          contentFit="cover"
-          transition={150}
-          style={StyleSheet.absoluteFill}
-          accessibilityIgnoresInvertColors
-        />
-      ) : null}
-      {children}
-    </View>
+    <Image
+      source={imageUrl ? { uri: imageUrl } : undefined}
+      contentFit="cover"
+      style={[{ height: altura, backgroundColor: Marca.bordaClara }, style]}
+      accessibilityIgnoresInvertColors
+    />
   );
 }

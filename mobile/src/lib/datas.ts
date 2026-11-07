@@ -1,23 +1,7 @@
-const mesesCurtos = [
-  'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN',
-  'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ',
-];
-
-const mesesLongos = [
-  'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
-  'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro',
-];
-
-// "2026-11-10" ou "2026-11-10T00:00:00.000Z" -> { dia: "10", mes: "NOV", mesLongo: "novembro" }
-export function partesDaData(date: string) {
-  const [, mes, dia] = date.slice(0, 10).split('-');
-  const indice = Number(mes) - 1;
-
-  return {
-    dia,
-    mes: mesesCurtos[indice] ?? '',
-    mesLongo: mesesLongos[indice] ?? '',
-  };
+// "2026-11-10" ou "2026-11-10T00:00:00.000Z" -> "10/11/2026"
+export function dataCurta(date: string) {
+  const [ano, mes, dia] = date.slice(0, 10).split('-');
+  return `${dia}/${mes}/${ano}`;
 }
 
 // Data de hoje no fuso do aparelho, como "YYYY-MM-DD"

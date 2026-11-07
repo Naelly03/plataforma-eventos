@@ -7,18 +7,8 @@ import EventoFormModal, {
   type EventoForm,
 } from "@/components/eventos/evento-form-modal";
 import ExcluirEventoModal from "@/components/eventos/excluir-evento-modal";
-import InscritosLista from "@/components/eventos/inscritos-lista";
 import { api, mensagemDoErro } from "@/lib/api";
-import { useSessao } from "@/lib/session";
-import {
-  dataLonga,
-  formatarData,
-  type Evento,
-  type Inscrito,
-} from "@/types/evento";
-
-const botaoSecundario =
-  "h-[46px] rounded-xl border px-[22px] type-button transition";
+import { dataLonga, type Evento } from "@/types/evento";
 
 function formularioDe(evento: Evento): EventoForm {
   return {
@@ -34,15 +24,11 @@ function formularioDe(evento: Evento): EventoForm {
 export default function EventoDetalhesPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { user } = useSessao();
 
   const [evento, setEvento] = useState<Evento | null>(null);
-  const [inscritos, setInscritos] = useState<Inscrito[]>([]);
   const [erro, setErro] = useState("");
-  const [aviso, setAviso] = useState("");
   const [tentativa, setTentativa] = useState(0);
   const [imagemFalhou, setImagemFalhou] = useState(false);
-  const [removendo, setRemovendo] = useState<string[]>([]);
 
   const [editando, setEditando] = useState(false);
   const [form, setForm] = useState<EventoForm | null>(null);
@@ -53,24 +39,12 @@ export default function EventoDetalhesPage() {
   const [excluindo, setExcluindo] = useState(false);
   const [erroExclusao, setErroExclusao] = useState("");
 
-  const userId = user?.id;
-
   useEffect(() => {
-    if (!userId) return;
-
     let ativo = true;
 
     api<Evento>(`/api/events/${id}`)
-      .then(async (dados) => {
-        // só o organizador pode listar os inscritos
-        const lista =
-          dados.ownerId === userId
-            ? await api<Inscrito[]>(`/api/events/${id}/registrations`)
-            : [];
-
-        if (!ativo) return;
-        setEvento(dados);
-        setInscritos(lista);
+      .then((dados) => {
+        if (ativo) setEvento(dados);
       })
       .catch((err) => {
         if (!ativo) return;
@@ -80,44 +54,11 @@ export default function EventoDetalhesPage() {
     return () => {
       ativo = false;
     };
-  }, [id, userId, tentativa]);
+  }, [id, tentativa]);
 
   function tentarNovamente() {
     setErro("");
     setTentativa((atual) => atual + 1);
-  }
-
-  async function removerInscrito(inscrito: Inscrito) {
-    if (!evento) return;
-
-    setAviso("");
-    setRemovendo((atuais) => [...atuais, inscrito.id]);
-
-    try {
-      await api<void>(`/api/registrations/${inscrito.id}`, {
-        method: "DELETE",
-      });
-      setInscritos((atuais) => atuais.filter((item) => item.id !== inscrito.id));
-      setEvento((atual) =>
-        atual
-          ? {
-              ...atual,
-              registrationsCount: Math.max(0, atual.registrationsCount - 1),
-            }
-          : atual,
-      );
-    } catch (err) {
-      setAviso(mensagemDoErro(err, "Não foi possível remover o inscrito."));
-    } finally {
-      setRemovendo((atuais) => atuais.filter((item) => item !== inscrito.id));
-    }
-  }
-
-  function abrirEdicao() {
-    if (!evento) return;
-    setForm(formularioDe(evento));
-    setErroForm("");
-    setEditando(true);
   }
 
   async function salvarEdicao(e: React.FormEvent<HTMLFormElement>) {
@@ -159,7 +100,7 @@ export default function EventoDetalhesPage() {
   }
 
   const voltar = (
-    <Link href="/eventos" className="font-medium text-slate-500 hover:text-slate-700">
+    <Link href="/eventos" className="text-slate-500 hover:text-slate-800">
       ← Voltar
     </Link>
   );
@@ -170,14 +111,13 @@ export default function EventoDetalhesPage() {
         {voltar}
         <div
           role="alert"
-          className="mt-4 rounded-2xl border border-red-200 bg-white p-7 text-center"
+          className="mt-4 rounded-lg border border-red-200 bg-white p-6 text-center"
         >
-          <b className="type-h3">Não foi possível carregar</b>
-          <p className="mb-4 mt-1.5 text-slate-500">{erro}</p>
+          <p className="mb-4 text-red-700">{erro}</p>
           <button
             type="button"
             onClick={tentarNovamente}
-            className="h-11 rounded-xl bg-linear-to-r from-orange-700 to-orange-600 px-6 type-button text-white transition hover:brightness-110"
+            className="rounded-lg bg-[#EA580C] px-5 py-2.5 type-button text-white hover:bg-[#C2410C]"
           >
             Tentar novamente
           </button>
@@ -190,128 +130,81 @@ export default function EventoDetalhesPage() {
     return (
       <div>
         {voltar}
-        <div
-          aria-busy="true"
-          className="mt-4 h-72 animate-pulse rounded-2xl border border-slate-200 bg-white"
-        />
+        <p aria-busy="true" className="mt-4 text-slate-500">
+          Carregando evento...
+        </p>
       </div>
     );
   }
 
-  const organizador = evento.ownerId === userId;
-
   return (
-    <div>
+    <div className="max-w-3xl">
       {voltar}
 
-      <header className="mb-7 mt-3 flex flex-wrap items-end justify-between gap-5">
-        <div className="min-w-0">
-          <h1 className="mb-2 type-h1">
-            {evento.title}
-          </h1>
-          <p className="type-body font-medium tabular-nums text-slate-600">
-            {dataLonga(evento.date)} · {evento.time} · {evento.location}
-          </p>
-        </div>
+      <div className="mb-6 mt-4 flex flex-wrap items-start justify-between gap-4">
+        <h1 className="type-h1">{evento.title}</h1>
 
-        {organizador && (
-          <div className="flex gap-2.5">
-            <button
-              type="button"
-              onClick={abrirEdicao}
-              className={`${botaoSecundario} border-slate-300 bg-white text-slate-700 hover:bg-slate-100`}
-            >
-              Editar
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setErroExclusao("");
-                setConfirmandoExclusao(true);
-              }}
-              className={`${botaoSecundario} border-red-200 bg-white text-red-600 hover:bg-red-50`}
-            >
-              Excluir
-            </button>
-          </div>
-        )}
-      </header>
-
-      {aviso && (
-        <div
-          role="alert"
-          className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 type-small text-red-700"
-        >
-          <span>{aviso}</span>
+        <div className="flex gap-2">
           <button
             type="button"
-            onClick={() => setAviso("")}
-            aria-label="Fechar aviso"
-            className="font-bold"
+            onClick={() => {
+              setForm(formularioDe(evento));
+              setErroForm("");
+              setEditando(true);
+            }}
+            className="rounded-lg border border-slate-300 bg-white px-5 py-2.5 type-button text-slate-700 hover:bg-slate-100"
           >
-            ×
+            Editar
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setErroExclusao("");
+              setConfirmandoExclusao(true);
+            }}
+            className="rounded-lg border border-red-200 bg-white px-5 py-2.5 type-button text-red-600 hover:bg-red-50"
+          >
+            Excluir
           </button>
         </div>
-      )}
+      </div>
 
-      <div
-        className={`grid items-start gap-6 ${
-          organizador ? "lg:grid-cols-2" : "max-w-3xl"
-        }`}
-      >
-        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-          <div className="relative flex h-[200px] items-center justify-center bg-linear-to-br from-orange-50 to-orange-100 type-label text-orange-800">
-            {imagemFalhou ? (
-              "Imagem indisponível"
-            ) : (
-              // URL externa e arbitrária: next/image exigiria liberar cada domínio
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={evento.imageUrl}
-                alt={`Imagem do evento ${evento.title}`}
-                onError={() => setImagemFalhou(true)}
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-            )}
-          </div>
-
-          <div className="flex flex-col gap-[18px] p-[26px]">
-            <div>
-              <h2 className="mb-2 type-h3">
-                Descrição
-              </h2>
-              <p className="type-body max-w-[65ch] whitespace-pre-line text-slate-600">
-                {evento.description}
-              </p>
-            </div>
-
-            <dl className="grid grid-cols-2 gap-4">
-              <div>
-                <dt className="type-label text-slate-500">Data</dt>
-                <dd className="font-bold tabular-nums">
-                  {formatarData(evento.date)}
-                </dd>
-              </div>
-              <div>
-                <dt className="type-label text-slate-500">Horário</dt>
-                <dd className="font-bold tabular-nums">{evento.time}</dd>
-              </div>
-              <div className="col-span-2">
-                <dt className="type-label text-slate-500">Local</dt>
-                <dd className="font-bold">{evento.location}</dd>
-              </div>
-            </dl>
-          </div>
-        </section>
-
-        {organizador && (
-          <InscritosLista
-            inscritos={inscritos}
-            total={evento.registrationsCount}
-            removendo={removendo}
-            onRemover={(inscrito) => void removerInscrito(inscrito)}
+      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
+        {imagemFalhou ? (
+          <p className="bg-slate-100 py-16 text-center type-small text-slate-500">
+            Imagem indisponível
+          </p>
+        ) : (
+          // URL externa e arbitrária: next/image exigiria liberar cada domínio
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={evento.imageUrl}
+            alt={`Imagem do evento ${evento.title}`}
+            onError={() => setImagemFalhou(true)}
+            className="h-56 w-full object-cover"
           />
         )}
+
+        <dl className="grid gap-4 p-6 sm:grid-cols-2">
+          <div>
+            <dt className="type-label text-slate-500">Data</dt>
+            <dd className="font-bold">{dataLonga(evento.date)}</dd>
+          </div>
+          <div>
+            <dt className="type-label text-slate-500">Horário</dt>
+            <dd className="font-bold">{evento.time}</dd>
+          </div>
+          <div className="sm:col-span-2">
+            <dt className="type-label text-slate-500">Local</dt>
+            <dd className="font-bold">{evento.location}</dd>
+          </div>
+          <div className="sm:col-span-2">
+            <dt className="type-label text-slate-500">Descrição</dt>
+            <dd className="whitespace-pre-line text-slate-700">
+              {evento.description}
+            </dd>
+          </div>
+        </dl>
       </div>
 
       {editando && form && (

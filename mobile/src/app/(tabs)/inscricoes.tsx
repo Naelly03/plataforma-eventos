@@ -5,11 +5,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Botao } from '@/components/botao';
 import { Aviso, ErroDeCarregamento, EsqueletoDeCards, EstadoVazio } from '@/components/feedback';
-import { Marca, gradienteDoEvento } from '@/constants/marca';
-import { Fonte, Tipo } from '@/constants/tipografia';
+import { Marca } from '@/constants/marca';
+import { Tipo } from '@/constants/tipografia';
 import { useInscricoes } from '@/context/inscricoes-context';
 import { mensagemDoErro } from '@/lib/api';
-import { partesDaData } from '@/lib/datas';
+import { dataCurta } from '@/lib/datas';
 
 export default function InscricoesScreen() {
   const router = useRouter();
@@ -69,7 +69,6 @@ export default function InscricoesScreen() {
         }
         renderItem={({ item }) => {
           const { event: evento } = item;
-          const { dia, mes } = partesDaData(evento.date);
 
           return (
             <View style={styles.card}>
@@ -78,21 +77,12 @@ export default function InscricoesScreen() {
                 accessibilityLabel={`Ver ${evento.title}`}
                 onPress={() => router.push(`/evento/${evento.id}`)}
                 style={styles.linhaEvento}>
-                <View
-                  style={[
-                    styles.data,
-                    { experimental_backgroundImage: gradienteDoEvento(evento.id) },
-                  ]}>
-                  <Text style={styles.dataDia}>{dia}</Text>
-                  <Text style={styles.dataMes}>{mes}</Text>
-                </View>
-
                 <View style={styles.textos}>
                   <Text style={styles.nome} numberOfLines={2}>
                     {evento.title}
                   </Text>
                   <Text style={styles.meta} numberOfLines={1}>
-                    {evento.time} · {evento.location}
+                    {dataCurta(evento.date)} · {evento.time} · {evento.location}
                   </Text>
                 </View>
               </Pressable>
@@ -152,26 +142,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 14,
   },
-  data: {
-    width: 56,
-    height: 60,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  dataDia: {
-    fontFamily: Fonte.extra,
-    fontSize: 20,
-    lineHeight: 22,
-    color: Marca.branco,
-    fontVariant: ['tabular-nums'],
-  },
-  dataMes: {
-    fontFamily: Fonte.negrito,
-    fontSize: 12,
-    letterSpacing: 1,
-    color: Marca.branco,
-  },
   textos: {
     flex: 1,
   },
@@ -185,6 +155,5 @@ const styles = StyleSheet.create({
   },
   botaoCancelar: {
     borderRadius: 12,
-    boxShadow: undefined,
   },
 });

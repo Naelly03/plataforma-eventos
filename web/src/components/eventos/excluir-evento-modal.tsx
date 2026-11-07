@@ -27,7 +27,7 @@ export default function ExcluirEventoModal({
         aria-modal="true"
         aria-labelledby="excluir-titulo"
         aria-describedby="excluir-descricao"
-        className="w-full max-w-[420px] rounded-[20px] bg-white p-7 shadow-[0_30px_60px_-20px_rgba(15,23,42,0.4)]"
+        className="w-full max-w-[420px] rounded-xl bg-white p-6"
       >
         <h2
           id="excluir-titulo"

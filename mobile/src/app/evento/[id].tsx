@@ -1,7 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Botao } from '@/components/botao';
 import { EventoCapa } from '@/components/evento-capa';
@@ -10,13 +10,12 @@ import { Marca } from '@/constants/marca';
 import { Fonte, Tipo } from '@/constants/tipografia';
 import { useInscricoes } from '@/context/inscricoes-context';
 import { api, mensagemDoErro } from '@/lib/api';
-import { hojeISO, partesDaData } from '@/lib/datas';
+import { dataCurta, hojeISO } from '@/lib/datas';
 import type { Evento } from '@/types/evento';
 
 export default function EventoDetalhesScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const { inscricaoDoEvento, inscrever, cancelar } = useInscricoes();
 
   const [evento, setEvento] = useState<Evento | null>(null);
@@ -71,76 +70,43 @@ export default function EventoDetalhesScreen() {
   }
 
   const botaoVoltar = (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel="Voltar"
-      onPress={voltar}
-      style={[styles.voltar, { top: insets.top + 8 }]}>
-      <Text style={styles.voltarSeta}>←</Text>
+    <Pressable accessibilityRole="button" onPress={voltar} style={styles.voltar}>
+      <Text style={styles.voltarTexto}>← Voltar</Text>
     </Pressable>
   );
 
-  if (erro) {
-    return (
-      <View style={[styles.tela, { paddingTop: insets.top + 8, paddingHorizontal: 20 }]}>
-        <Pressable accessibilityRole="button" onPress={voltar}>
-          <Text style={styles.voltarTexto}>← Voltar</Text>
-        </Pressable>
-        <ErroDeCarregamento mensagem={erro} onTentarNovamente={tentarNovamente} />
-      </View>
-    );
-  }
-
-  if (!evento) {
-    return (
-      <View style={styles.tela}>
-        <View style={[styles.capa, { height: 230, backgroundColor: Marca.bordaClara }]} />
-        {botaoVoltar}
-      </View>
-    );
-  }
-
-  const { dia, mes, mesLongo } = partesDaData(evento.date);
-  const inscrito = Boolean(inscricaoDoEvento(evento.id));
-  const jaAconteceu = evento.date.slice(0, 10) < hojeISO();
+  const inscrito = evento ? Boolean(inscricaoDoEvento(evento.id)) : false;
+  const jaAconteceu = evento ? evento.date.slice(0, 10) < hojeISO() : false;
 
   return (
-    <View style={styles.tela}>
-      <ScrollView contentContainerStyle={styles.rolagem} showsVerticalScrollIndicator={false}>
-        <EventoCapa id={evento.id} imageUrl={evento.imageUrl} altura={230} />
+    <SafeAreaView style={styles.tela}>
+      {botaoVoltar}
 
-        <View style={styles.folha}>
+      {erro ? (
+        <View style={styles.padding}>
+          <ErroDeCarregamento mensagem={erro} onTentarNovamente={tentarNovamente} />
+        </View>
+      ) : !evento ? (
+        <ActivityIndicator color={Marca.laranja} style={styles.carregando} />
+      ) : (
+        <ScrollView contentContainerStyle={styles.conteudo}>
+          <EventoCapa imageUrl={evento.imageUrl} altura={200} style={styles.capa} />
+
           <Text style={styles.titulo}>{evento.title}</Text>
 
-          <View style={styles.infos}>
-            <View style={styles.info}>
-              <View style={[styles.icone, { backgroundColor: Marca.laranjaClaro }]}>
-                <Text style={[styles.iconeTexto, { color: Marca.laranjaEscuro, fontSize: 12 }]}>
-                  {mes}
-                </Text>
-              </View>
-              <View style={styles.infoTextos}>
-                <Text style={styles.infoTitulo}>
-                  {dia} de {mesLongo}
-                </Text>
-                <Text style={styles.infoSub}>{evento.time}</Text>
-              </View>
-            </View>
+          <Text style={styles.rotulo}>Data</Text>
+          <Text style={styles.valor}>{dataCurta(evento.date)}</Text>
 
-            <View style={styles.info}>
-              <View style={[styles.icone, { backgroundColor: Marca.azulFundo }]}>
-                <Text style={[styles.iconeTexto, { color: Marca.azul }]}>●</Text>
-              </View>
-              <View style={styles.infoTextos}>
-                <Text style={styles.infoTitulo}>{evento.location}</Text>
-              </View>
-            </View>
-          </View>
+          <Text style={styles.rotulo}>Horário</Text>
+          <Text style={styles.valor}>{evento.time}</Text>
 
-          <Text style={styles.secao}>Sobre o evento</Text>
+          <Text style={styles.rotulo}>Local</Text>
+          <Text style={styles.valor}>{evento.location}</Text>
+
+          <Text style={styles.rotulo}>Descrição</Text>
           <Text style={styles.descricao}>{evento.description}</Text>
 
-          <View style={[styles.acao, { paddingBottom: Math.max(insets.bottom, 16) }]}>
+          <View style={styles.acao}>
             {aviso ? <Aviso texto={aviso} /> : null}
 
             {jaAconteceu && !inscrito ? (
@@ -154,11 +120,9 @@ export default function EventoDetalhesScreen() {
               />
             )}
           </View>
-        </View>
-      </ScrollView>
-
-      {botaoVoltar}
-    </View>
+        </ScrollView>
+      )}
+    </SafeAreaView>
   );
 }
 
@@ -167,81 +131,42 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Marca.fundo,
   },
-  rolagem: {
-    flexGrow: 1,
+  padding: {
+    paddingHorizontal: 20,
   },
-  capa: {
-    width: '100%',
+  carregando: {
+    marginTop: 40,
   },
   voltar: {
-    position: 'absolute',
-    left: 16,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Marca.branco,
-    boxShadow: '0 4px 12px rgba(15, 23, 42, 0.15)',
-  },
-  voltarSeta: {
-    fontFamily: Fonte.negrito,
-    fontSize: 20,
-    color: Marca.texto,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
   },
   voltarTexto: {
     ...Tipo.corpo,
     fontFamily: Fonte.media,
     color: Marca.textoSuave,
   },
-  folha: {
-    flex: 1,
-    marginTop: -28,
-    paddingTop: 24,
-    paddingHorizontal: 22,
-    backgroundColor: Marca.fundo,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
+  conteudo: {
+    paddingHorizontal: 20,
+    paddingBottom: 24,
+  },
+  capa: {
+    borderRadius: 12,
+    marginBottom: 16,
   },
   titulo: {
     ...Tipo.h1,
-    marginBottom: 14,
+    marginBottom: 12,
     color: Marca.texto,
   },
-  infos: {
-    gap: 10,
-    marginBottom: 18,
-  },
-  info: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  icone: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconeTexto: {
-    fontFamily: Fonte.extra,
-  },
-  infoTextos: {
-    flex: 1,
-  },
-  infoTitulo: {
-    ...Tipo.corpo,
-    fontFamily: Fonte.negrito,
-    color: Marca.texto,
-  },
-  infoSub: {
+  rotulo: {
     ...Tipo.rotulo,
+    marginTop: 10,
     color: Marca.textoSuave,
   },
-  secao: {
-    ...Tipo.h3,
-    marginBottom: 6,
+  valor: {
+    ...Tipo.corpo,
+    fontFamily: Fonte.negrito,
     color: Marca.texto,
   },
   descricao: {
@@ -249,8 +174,7 @@ const styles = StyleSheet.create({
     color: Marca.textoMedio,
   },
   acao: {
-    marginTop: 'auto',
-    paddingTop: 22,
+    paddingTop: 24,
   },
   encerrado: {
     ...Tipo.corpo,

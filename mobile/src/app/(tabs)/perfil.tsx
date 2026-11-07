@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
-    experimental_backgroundImage: 'linear-gradient(160deg, #c2410c, #ea580c)',
+    backgroundColor: Marca.laranja,
   },
   avatarLetra: {
     fontFamily: Fonte.extra,

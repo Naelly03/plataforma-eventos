@@ -7,13 +7,13 @@ import {
   type ViewStyle,
 } from 'react-native';
 
-import { GradienteLaranja, Marca } from '@/constants/marca';
+import { Marca } from '@/constants/marca';
 import { Tipo } from '@/constants/tipografia';
 
 type BotaoProps = {
   titulo: string;
   onPress: () => void;
-  variante?: 'primario' | 'contorno' | 'claro' | 'perigo';
+  variante?: 'primario' | 'contorno' | 'perigo';
   carregando?: boolean;
   altura?: number;
   style?: StyleProp<ViewStyle>;
@@ -21,19 +21,12 @@ type BotaoProps = {
 
 const variantes = {
   primario: {
-    botao: {
-      experimental_backgroundImage: GradienteLaranja,
-      boxShadow: '0 8px 20px rgba(194, 65, 12, 0.28)',
-    },
+    botao: { backgroundColor: Marca.laranja },
     texto: Marca.branco,
   },
   contorno: {
     botao: { borderWidth: 1, borderColor: Marca.borda },
     texto: Marca.texto,
-  },
-  claro: {
-    botao: { borderWidth: 1, borderColor: '#475569' },
-    texto: Marca.branco,
   },
   perigo: {
     botao: {

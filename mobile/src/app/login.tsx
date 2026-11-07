@@ -6,7 +6,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Botao } from '@/components/botao';
 import { Campo } from '@/components/campo';
 import { Aviso } from '@/components/feedback';
-import { LogoIcon } from '@/components/logo';
 import { Marca } from '@/constants/marca';
 import { Fonte, Tipo } from '@/constants/tipografia';
 import { useAuth } from '@/context/auth-context';
@@ -47,8 +46,7 @@ export default function LoginScreen() {
         <ScrollView
           contentContainerStyle={styles.conteudo}
           keyboardShouldPersistTaps="handled">
-          <LogoIcon size={56} />
-          <Text style={styles.titulo}>Bem-vindo{'\n'}de volta</Text>
+          <Text style={styles.titulo}>Entrar</Text>
           <Text style={styles.subtitulo}>
             Entre para ver e se inscrever em eventos.
           </Text>

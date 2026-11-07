@@ -50,7 +50,7 @@ export default function EventoFormModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-titulo"
-        className="my-auto w-full max-w-xl rounded-2xl bg-white shadow-2xl"
+        className="my-auto w-full max-w-xl rounded-xl bg-white"
       >
         <div className="flex items-start justify-between border-b border-slate-100 p-5 sm:p-6">
           <div>

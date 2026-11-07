@@ -2,17 +2,44 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import EventoCard from "@/components/eventos/evento-card";
+import EventoFormModal, {
+  type EventoForm,
+} from "@/components/eventos/evento-form-modal";
+import ExcluirEventoModal from "@/components/eventos/excluir-evento-modal";
 import { api, mensagemDoErro } from "@/lib/api";
-import { useSessao } from "@/lib/session";
 import { formatarData, type Evento } from "@/types/evento";
 
-export default function EventosPage() {
-  const { user } = useSessao();
+const formularioVazio: EventoForm = {
+  title: "",
+  description: "",
+  date: "",
+  time: "",
+  location: "",
+  imageUrl: "",
+};
 
+function ordenar(eventos: Evento[]) {
+  return [...eventos].sort(
+    (a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time),
+  );
+}
+
+export default function EventosPage() {
   const [eventos, setEventos] = useState<Evento[] | null>(null);
   const [erro, setErro] = useState("");
   const [tentativa, setTentativa] = useState(0);
+
+  const [modalAberto, setModalAberto] = useState(false);
+  const [eventoEditando, setEventoEditando] = useState<Evento | null>(null);
+  const [form, setForm] = useState<EventoForm>(formularioVazio);
+  const [salvando, setSalvando] = useState(false);
+  const [erroForm, setErroForm] = useState("");
+
+  const [eventoParaExcluir, setEventoParaExcluir] = useState<Evento | null>(
+    null,
+  );
+  const [excluindo, setExcluindo] = useState(false);
+  const [erroExclusao, setErroExclusao] = useState("");
 
   useEffect(() => {
     let ativo = true;
@@ -36,138 +63,203 @@ export default function EventosPage() {
     setTentativa((atual) => atual + 1);
   }
 
-  const carregando = eventos === null && !erro;
-  const hoje = new Date().toLocaleDateString("sv-SE");
+  function abrirCadastro() {
+    setEventoEditando(null);
+    setForm({ ...formularioVazio });
+    setErroForm("");
+    setModalAberto(true);
+  }
 
-  const proximos = (eventos ?? []).filter(
-    (evento) => evento.date.slice(0, 10) >= hoje,
-  );
-  const anteriores = (eventos ?? [])
-    .filter((evento) => evento.date.slice(0, 10) < hoje)
-    .reverse();
+  function abrirEdicao(evento: Evento) {
+    setEventoEditando(evento);
+    setForm({
+      title: evento.title,
+      description: evento.description,
+      date: evento.date.slice(0, 10),
+      time: evento.time,
+      location: evento.location,
+      imageUrl: evento.imageUrl,
+    });
+    setErroForm("");
+    setModalAberto(true);
+  }
 
-  const primeiroNome = user?.name.trim().split(" ")[0];
+  async function salvarEvento(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setSalvando(true);
+    setErroForm("");
+
+    try {
+      if (eventoEditando) {
+        const atualizado = await api<Evento>(
+          `/api/events/${eventoEditando.id}`,
+          { method: "PUT", body: JSON.stringify(form) },
+        );
+
+        setEventos((atuais) =>
+          ordenar(
+            (atuais ?? []).map((item) =>
+              item.id === atualizado.id ? atualizado : item,
+            ),
+          ),
+        );
+      } else {
+        const criado = await api<Evento>("/api/events", {
+          method: "POST",
+          body: JSON.stringify(form),
+        });
+
+        setEventos((atuais) => ordenar([...(atuais ?? []), criado]));
+      }
+
+      setModalAberto(false);
+    } catch (err) {
+      setErroForm(mensagemDoErro(err, "Não foi possível salvar o evento."));
+    } finally {
+      setSalvando(false);
+    }
+  }
+
+  async function excluirEvento() {
+    if (!eventoParaExcluir) return;
+
+    setExcluindo(true);
+    setErroExclusao("");
+
+    try {
+      await api<void>(`/api/events/${eventoParaExcluir.id}`, {
+        method: "DELETE",
+      });
+
+      setEventos((atuais) =>
+        (atuais ?? []).filter((item) => item.id !== eventoParaExcluir.id),
+      );
+      setEventoParaExcluir(null);
+    } catch (err) {
+      setErroExclusao(mensagemDoErro(err, "Não foi possível excluir o evento."));
+    } finally {
+      setExcluindo(false);
+    }
+  }
 
   return (
     <div>
-      <header className="mb-9 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="mb-1.5 type-h1">
-            Olá{primeiroNome ? `, ${primeiroNome}` : ""}
-          </h1>
-          <p className="max-w-[65ch] type-body text-slate-500">
-            {eventos
-              ? `Há ${proximos.length} ${
-                  proximos.length === 1 ? "evento próximo" : "eventos próximos"
-                }.`
-              : "Acompanhe os eventos da plataforma."}
-          </p>
-        </div>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <h1 className="type-h1">Eventos</h1>
 
-        <Link
-          href="/eventos/gerenciar"
-          className="flex items-center gap-2 rounded-xl bg-linear-to-r from-orange-700 to-orange-600 px-[22px] py-[13px] type-button text-white shadow-[0_6px_18px_rgba(194,65,12,0.28)] transition hover:brightness-110"
+        <button
+          type="button"
+          onClick={abrirCadastro}
+          className="rounded-lg bg-[#EA580C] px-5 py-3 type-button text-white hover:bg-[#C2410C]"
         >
-          <span className="text-xl font-extrabold leading-none">+</span>
-          Criar novo evento
-        </Link>
-      </header>
-
-      {carregando && (
-        <div
-          aria-busy="true"
-          className="grid gap-5 sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))]"
-        >
-          {[1, 2, 3].map((item) => (
-            <div
-              key={item}
-              className="h-[210px] animate-pulse rounded-2xl border border-slate-200 bg-white"
-            />
-          ))}
-        </div>
-      )}
+          Novo evento
+        </button>
+      </div>
 
       {erro && (
         <div
           role="alert"
-          className="rounded-2xl border border-red-200 bg-white p-7 text-center"
+          className="rounded-lg border border-red-200 bg-white p-6 text-center"
         >
-          <div className="mx-auto mb-3.5 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-2xl font-extrabold text-red-600">
-            !
-          </div>
-          <b className="type-h3">Não foi possível carregar</b>
-          <p className="mb-4 mt-1.5 text-slate-500">{erro}</p>
+          <p className="mb-4 text-red-700">{erro}</p>
           <button
             type="button"
             onClick={tentarNovamente}
-            className="h-11 rounded-xl bg-linear-to-r from-orange-700 to-orange-600 px-6 type-button text-white transition hover:brightness-110"
+            className="rounded-lg bg-[#EA580C] px-5 py-2.5 type-button text-white hover:bg-[#C2410C]"
           >
             Tentar novamente
           </button>
         </div>
       )}
 
-      {eventos && (
-        <>
-          <h2 className="mb-4 type-h2">
-            Próximos eventos
-          </h2>
-
-          {proximos.length > 0 ? (
-            <div className="mb-11 grid gap-5 sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))]">
-              {proximos.map((evento) => (
-                <EventoCard
-                  key={evento.id}
-                  evento={evento}
-                  organizador={evento.ownerId === user?.id}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="mb-11 rounded-2xl border-2 border-dashed border-slate-300 p-10 text-center text-slate-500">
-              Nenhum evento próximo no momento.
-            </div>
-          )}
-
-          {anteriores.length > 0 && (
-            <>
-              <h2 className="mb-4 type-h2">
-                Eventos anteriores
-              </h2>
-
-              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-                {anteriores.map((evento) => (
-                  <div
-                    key={evento.id}
-                    className="flex items-center justify-between gap-4 border-b border-slate-100 px-5 py-4 last:border-b-0"
-                  >
-                    <div className="min-w-0">
-                      <div className="text-lg font-bold leading-tight">
-                        <Link
-                          href={`/eventos/${evento.id}`}
-                          className="hover:text-orange-700"
-                        >
-                          {evento.title}
-                        </Link>
-                      </div>
-                      <div className="type-label text-slate-500">
-                        {formatarData(evento.date)} · {evento.time} ·{" "}
-                        {evento.location}
-                      </div>
-                    </div>
-
-                    {evento.ownerId === user?.id && (
-                      <span className="whitespace-nowrap rounded-full bg-green-100 px-2.5 py-1 type-label text-green-700">
-                        Organizador
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </>
+      {eventos === null && !erro && (
+        <p aria-busy="true" className="text-slate-500">
+          Carregando eventos...
+        </p>
       )}
+
+      {eventos && eventos.length === 0 && (
+        <p className="rounded-lg border border-dashed border-slate-300 p-10 text-center text-slate-500">
+          Nenhum evento cadastrado.
+        </p>
+      )}
+
+      {eventos && eventos.length > 0 && (
+        <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+          <table className="w-full text-left type-small">
+            <thead className="border-b border-slate-200 bg-slate-50 text-slate-600">
+              <tr>
+                <th className="px-4 py-3">Título</th>
+                <th className="px-4 py-3">Data</th>
+                <th className="px-4 py-3">Horário</th>
+                <th className="px-4 py-3">Local</th>
+                <th className="px-4 py-3 text-right">Ações</th>
+              </tr>
+            </thead>
+
+            <tbody className="divide-y divide-slate-100">
+              {eventos.map((evento) => (
+                <tr key={evento.id}>
+                  <td className="px-4 py-3 font-bold">{evento.title}</td>
+                  <td className="whitespace-nowrap px-4 py-3">
+                    {formatarData(evento.date)}
+                  </td>
+                  <td className="px-4 py-3">{evento.time}</td>
+                  <td className="px-4 py-3">{evento.location}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex justify-end gap-2">
+                      <Link
+                        href={`/eventos/${evento.id}`}
+                        className="rounded-md border border-slate-300 px-3 py-1.5 hover:bg-slate-100"
+                      >
+                        Ver
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => abrirEdicao(evento)}
+                        className="rounded-md border border-slate-300 px-3 py-1.5 hover:bg-slate-100"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setErroExclusao("");
+                          setEventoParaExcluir(evento);
+                        }}
+                        className="rounded-md border border-red-200 px-3 py-1.5 text-red-600 hover:bg-red-50"
+                      >
+                        Excluir
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {eventoParaExcluir && (
+        <ExcluirEventoModal
+          titulo={eventoParaExcluir.title}
+          excluindo={excluindo}
+          erro={erroExclusao}
+          onConfirmar={() => void excluirEvento()}
+          onCancelar={() => setEventoParaExcluir(null)}
+        />
+      )}
+
+      <EventoFormModal
+        aberto={modalAberto}
+        eventoEditando={eventoEditando}
+        form={form}
+        salvando={salvando}
+        erro={erroForm}
+        onFormChange={setForm}
+        onSalvar={(e) => void salvarEvento(e)}
+        onFechar={() => setModalAberto(false)}
+      />
     </div>
   );
 }

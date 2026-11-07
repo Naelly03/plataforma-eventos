@@ -4,8 +4,3 @@ export type Usuario = {
   email: string;
   role: string;
 };
-
-export type RespostaDeAuth = {
-  token: string;
-  user: Usuario;
-};

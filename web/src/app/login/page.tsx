@@ -11,10 +11,8 @@ import {
   authLabelClass,
   authLinkClass,
   authTitleClass,
-  mensagemDeErro,
-  salvarSessao,
-  type AuthResponse,
 } from "@/components/auth-styles";
+import { authClient, mensagemDeAuth } from "@/lib/auth-client";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -30,28 +28,16 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const { error } = await authClient.signIn.email({ email, password });
 
-      const data: AuthResponse = await response.json();
-
-      if (!response.ok) {
-        throw new Error(mensagemDeErro(data.error, "Não foi possível entrar."));
+      if (error) {
+        setError(mensagemDeAuth(error, "Não foi possível entrar."));
+        return;
       }
 
-      salvarSessao(data);
       router.push("/eventos");
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Erro inesperado. Tente novamente.",
-      );
+    } catch {
+      setError("Erro inesperado. Tente novamente.");
     } finally {
       setLoading(false);
     }

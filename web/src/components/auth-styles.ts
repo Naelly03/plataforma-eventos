@@ -1,5 +1,3 @@
-import { iniciarSessao, type Usuario } from "@/lib/session";
-
 export const authCardClass =
   "w-full max-w-[420px] rounded-xl border border-slate-200 bg-white p-6 sm:p-8";
 
@@ -17,21 +15,3 @@ export const authButtonClass =
 export const authLinkClass =
   "font-medium text-blue-600 no-underline hover:text-blue-700";
 
-export type AuthResponse = {
-  token?: string;
-  user?: Usuario;
-  error?: string | string[];
-};
-
-export function mensagemDeErro(error: AuthResponse["error"], padrao: string) {
-  if (Array.isArray(error)) return error.join(" ");
-  return error || padrao;
-}
-
-export function salvarSessao(data: AuthResponse) {
-  if (!data.token) {
-    throw new Error("O servidor não retornou o token.");
-  }
-
-  iniciarSessao(data.token, data.user);
-}

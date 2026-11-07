@@ -11,23 +11,8 @@ import {
   authLabelClass,
   authLinkClass,
   authTitleClass,
-  mensagemDeErro,
-  salvarSessao,
-  type AuthResponse,
 } from "@/components/auth-styles";
-
-async function enviar(url: string, body: unknown) {
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
-
-  const data: AuthResponse = await response.json();
-  return { response, data };
-}
+import { authClient, mensagemDeAuth } from "@/lib/auth-client";
 
 export default function CadastroPage() {
   const router = useRouter();
@@ -51,34 +36,17 @@ export default function CadastroPage() {
     setLoading(true);
 
     try {
-      const registro = await enviar("/api/auth/register", {
-        name,
-        email,
-        password,
-      });
+      // O cadastro já abre a sessão (autoSignIn do Better Auth)
+      const { error } = await authClient.signUp.email({ name, email, password });
 
-      if (!registro.response.ok) {
-        throw new Error(
-          mensagemDeErro(registro.data.error, "Não foi possível criar a conta."),
-        );
+      if (error) {
+        setError(mensagemDeAuth(error, "Não foi possível criar a conta."));
+        return;
       }
 
-      const login = await enviar("/api/auth/login", { email, password });
-
-      if (!login.response.ok) {
-        throw new Error(
-          mensagemDeErro(login.data.error, "Conta criada, mas não foi possível entrar."),
-        );
-      }
-
-      salvarSessao(login.data);
       router.push("/eventos");
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Erro inesperado. Tente novamente.",
-      );
+    } catch {
+      setError("Erro inesperado. Tente novamente.");
     } finally {
       setLoading(false);
     }

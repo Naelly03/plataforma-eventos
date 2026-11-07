@@ -1,5 +1,3 @@
-import { lerToken, limparSessao } from "@/lib/session";
-
 export class ApiError extends Error {
   status: number;
 
@@ -11,14 +9,12 @@ export class ApiError extends Error {
 
 type ErroDaApi = { error?: string | string[] };
 
-// Chama a API com o token da sessão. Em 401 encerra a sessão (a guarda de
-// rota do shell leva o usuário ao login).
+// Chama a API. A sessão vai no cookie (HttpOnly) que o Better Auth define, e o
+// navegador o envia sozinho. Em 401 a sessão expirou: volta para o login.
 export async function api<T>(path: string, init: RequestInit = {}) {
   const headers = new Headers(init.headers);
-  const token = lerToken();
 
   if (init.body) headers.set("Content-Type", "application/json");
-  if (token) headers.set("Authorization", `Bearer ${token}`);
 
   const response = await fetch(path, { ...init, headers });
 
@@ -27,7 +23,10 @@ export async function api<T>(path: string, init: RequestInit = {}) {
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    if (response.status === 401) limparSessao();
+    // Recarga completa em /login (de propósito, não um push do router): assim a
+    // sessão em cache do Better Auth é descartada e consultada de novo no servidor.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+    if (response.status === 401) window.location.assign("/login");
 
     const { error } = (data ?? {}) as ErroDaApi;
     const mensagem = Array.isArray(error) ? error.join(" ") : error;

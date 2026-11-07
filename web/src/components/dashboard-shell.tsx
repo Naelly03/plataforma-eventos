@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { limparSessao, useSessao } from "@/lib/session";
+import { authClient } from "@/lib/auth-client";
 
 const rotasPublicas = ["/login", "/cadastro"];
 
@@ -14,19 +14,23 @@ export default function DashboardShell({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { pronto, token } = useSessao();
+  const { data: session, isPending, isRefetching } = authClient.useSession();
 
   const rotaPublica = rotasPublicas.includes(pathname);
-  const semSessao = pronto && !token;
 
-  // Rotas internas exigem sessão; sem token (ou com o token expirado, que a
-  // API faz limpar em um 401) o usuário volta para o login.
+  // Sem sessão ainda não significa deslogado: logo após o login a sessão é
+  // consultada de novo, e só depois dessa resposta dá para decidir.
+  const verificando = (isPending || isRefetching) && !session;
+  const semSessao = !verificando && !session;
+
+  // Rotas internas exigem sessão; sem ela (ou com a sessão expirada) o
+  // usuário volta para o login.
   useEffect(() => {
     if (!rotaPublica && semSessao) router.replace("/login");
   }, [rotaPublica, semSessao, router]);
 
-  function handleLogout() {
-    limparSessao();
+  async function handleLogout() {
+    await authClient.signOut();
     router.push("/login");
   }
 
@@ -34,7 +38,7 @@ export default function DashboardShell({
     return <div className="flex min-h-screen flex-col">{children}</div>;
   }
 
-  if (!pronto || !token) {
+  if (!session) {
     return <div className="min-h-screen" aria-busy="true" />;
   }
 

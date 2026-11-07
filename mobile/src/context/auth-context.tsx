@@ -9,9 +9,9 @@ import {
   type PropsWithChildren,
 } from 'react';
 
-import { api, configurarApi } from '@/lib/api';
+import { ApiError, api, apiComResposta, configurarApi } from '@/lib/api';
 import { storage } from '@/lib/storage';
-import type { RespostaDeAuth, Usuario } from '@/types/usuario';
+import type { Usuario } from '@/types/usuario';
 
 const TOKEN_KEY = 'agendou_token';
 const USER_KEY = 'agendou_user';
@@ -26,6 +26,36 @@ type AuthContextValue = {
   sair: () => Promise<void>;
 };
 
+// O Better Auth responde em inglês; aqui viram as mensagens do Agendou
+const mensagensDeAuth: Record<string, string> = {
+  INVALID_EMAIL_OR_PASSWORD: 'Credenciais inválidas',
+  USER_ALREADY_EXISTS: 'E-mail já cadastrado',
+  USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL: 'E-mail já cadastrado',
+  PASSWORD_TOO_SHORT: 'A senha precisa ter ao menos 6 caracteres',
+  INVALID_EMAIL: 'E-mail inválido',
+};
+
+function traduzirErro(err: unknown): never {
+  if (err instanceof ApiError) {
+    const mensagem =
+      (err.code && mensagensDeAuth[err.code]) ||
+      (err.status === 429
+        ? 'Muitas tentativas. Aguarde alguns segundos e tente de novo.'
+        : null);
+
+    if (mensagem) throw new ApiError(mensagem, err.status, err.code);
+  }
+
+  throw err;
+}
+
+// A resposta do Better Auth traz mais campos do que o app usa
+type UsuarioDaApi = { id: string; name: string; email: string; role?: string };
+
+function usuarioDe(user: UsuarioDaApi): Usuario {
+  return { id: user.id, name: user.name, email: user.email, role: user.role ?? 'USER' };
+}
+
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: PropsWithChildren) {
@@ -34,15 +64,17 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const [carregando, setCarregando] = useState(true);
   const tokenRef = useRef<string | null>(null);
 
-  const guardarSessao = useCallback(async (resposta: RespostaDeAuth) => {
-    tokenRef.current = resposta.token;
-    setToken(resposta.token);
-    setUsuario(resposta.user);
-    await storage.salvar(TOKEN_KEY, resposta.token);
-    await storage.salvar(USER_KEY, JSON.stringify(resposta.user));
+  const guardarSessao = useCallback(async (novoToken: string, user: Usuario) => {
+    tokenRef.current = novoToken;
+    setToken(novoToken);
+    setUsuario(user);
+    await storage.salvar(TOKEN_KEY, novoToken);
+    await storage.salvar(USER_KEY, JSON.stringify(user));
   }, []);
 
-  const sair = useCallback(async () => {
+  // Só limpa o aparelho; não chama o servidor (usado também quando o servidor
+  // já disse que o token não vale mais)
+  const limparSessao = useCallback(async () => {
     tokenRef.current = null;
     setToken(null);
     setUsuario(null);
@@ -54,9 +86,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     configurarApi({
       getToken: () => tokenRef.current,
-      onUnauthorized: () => void sair(),
+      onUnauthorized: () => void limparSessao(),
     });
-  }, [sair]);
+  }, [limparSessao]);
 
   // Mantém o usuário autenticado entre aberturas do app
   useEffect(() => {
@@ -90,30 +122,53 @@ export function AuthProvider({ children }: PropsWithChildren) {
     };
   }, []);
 
-  const entrar = useCallback(
-    async (email: string, senha: string) => {
-      const resposta = await api<RespostaDeAuth>('/api/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ email, password: senha }),
-      });
+  // Login e cadastro respondem igual: o usuário vem no corpo e o token da
+  // sessão, no header set-auth-token. O cadastro já abre a sessão.
+  const abrirSessao = useCallback(
+    async (path: string, corpo: object) => {
+      try {
+        const { data, headers } = await apiComResposta<{ user: UsuarioDaApi }>(
+          path,
+          { method: 'POST', body: JSON.stringify(corpo) },
+        );
 
-      await guardarSessao(resposta);
+        const novoToken = headers.get('set-auth-token');
+        if (!novoToken) throw new Error('O servidor não retornou o token.');
+
+        await guardarSessao(novoToken, usuarioDe(data.user));
+      } catch (err) {
+        traduzirErro(err);
+      }
     },
     [guardarSessao],
   );
 
-  const cadastrar = useCallback(
-    async (nome: string, email: string, senha: string) => {
-      await api<Usuario>('/api/auth/register', {
-        method: 'POST',
-        body: JSON.stringify({ name: nome, email, password: senha }),
-      });
-
-      // a conta recém-criada já entra
-      await entrar(email, senha);
-    },
-    [entrar],
+  const entrar = useCallback(
+    (email: string, senha: string) =>
+      abrirSessao('/api/auth/sign-in/email', { email, password: senha }),
+    [abrirSessao],
   );
+
+  const cadastrar = useCallback(
+    (nome: string, email: string, senha: string) =>
+      abrirSessao('/api/auth/sign-up/email', {
+        name: nome,
+        email,
+        password: senha,
+      }),
+    [abrirSessao],
+  );
+
+  const sair = useCallback(async () => {
+    // avisa o servidor para encerrar a sessão; se falhar, sai do aparelho mesmo assim
+    try {
+      await api<unknown>('/api/auth/sign-out', { method: 'POST', body: '{}' });
+    } catch {
+      // sem rede ou token já inválido: o aparelho encerra do mesmo jeito
+    }
+
+    await limparSessao();
+  }, [limparSessao]);
 
   const value = useMemo(
     () => ({ usuario, token, carregando, entrar, cadastrar, sair }),

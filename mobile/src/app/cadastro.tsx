@@ -67,7 +67,6 @@ export default function CadastroScreen() {
             ← Voltar
           </Text>
           <Text style={styles.titulo}>Crie sua conta</Text>
-          <Text style={styles.subtitulo}>Leva menos de um minuto.</Text>
 
           <Campo
             rotulo="Nome"

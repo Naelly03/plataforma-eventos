@@ -1,15 +1,12 @@
 import type { TextStyle } from 'react-native';
 
-// No React Native cada peso do Figtree é uma família própria; não use
-// fontWeight com estas fontes. Nomes vindos de @expo-google-fonts/figtree.
 export const Fonte = {
-  regular: 'Figtree_400Regular',
-  media: 'Figtree_500Medium',
-  negrito: 'Figtree_700Bold',
-  extra: 'Figtree_800ExtraBold',
+  regular: 'Geist_400Regular',
+  media: 'Geist_500Medium',
+  negrito: 'Geist_700Bold',
+  extra: 'Geist_800ExtraBold',
 } as const;
 
-// Escala da coluna "Mobile" do sistema tipográfico (Tipografia Agendou)
 export const Tipo = {
   /** Splash e login. 32 / 1.15 · 800 · −1% */
   display: {

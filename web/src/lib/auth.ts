@@ -33,12 +33,10 @@ export const auth = betterAuth({
 
   session: { expiresIn: 60 * 60 * 24 * 7 }, // 7 dias
 
-  // O app mobile envia "Authorization: Bearer <token>"; o web usa cookie
   plugins: [bearer()],
 });
 
-// Devolve o usuário logado (ou null). Aceita o cookie de sessão (web) e o
-// header "Authorization: Bearer <token>" (mobile).
+
 export async function getAuth(req: Request) {
   const session = await auth.api.getSession({ headers: req.headers });
   if (!session) return null;

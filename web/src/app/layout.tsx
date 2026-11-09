@@ -1,16 +1,13 @@
 
 import type { Metadata } from "next";
-import { Figtree } from "next/font/google";
+import { Geist } from "next/font/google";
 import { Suspense } from "react";
 import "./globals.css";
 import DashboardShell from "@/components/dashboard-shell";
 
-const figtree = Figtree({
+const geistSans = Geist({
   subsets: ["latin"],
-  weight: ["400", "500", "700", "800"],
-  display: "swap",
-  fallback: ["system-ui", "sans-serif"],
-  variable: "--font-figtree",
+  variable: "--font-geist-sans",
 });
 
 export const metadata: Metadata = {
@@ -25,8 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className={`${figtree.variable} font-sans antialiased`}>
-        {/* usePathname() do shell depende da rota; em rotas dinâmicas precisa de Suspense */}
+      <body className={`${geistSans.variable} font-sans antialiased`}>
         <Suspense fallback={null}>
           <DashboardShell>{children}</DashboardShell>
         </Suspense>

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { Suspense } from "react";
 import "./globals.css";
-import DashboardShell from "@/components/dashboard-shell";
+import DashboardApp from "@/components/dashboard-app";
 
 const geistSans = Geist({
   subsets: ["latin"],
@@ -24,7 +24,7 @@ export default function RootLayout({
     <html lang="pt-BR">
       <body className={`${geistSans.variable} font-sans antialiased`}>
         <Suspense fallback={null}>
-          <DashboardShell>{children}</DashboardShell>
+          <DashboardApp>{children}</DashboardApp>
         </Suspense>
       </body>
     </html>

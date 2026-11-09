@@ -7,7 +7,7 @@ import { authClient } from "@/lib/auth-client";
 
 const rotasPublicas = ["/login", "/cadastro"];
 
-export default function DashboardShell({
+export default function DashboardApp({
   children,
 }: {
   children: React.ReactNode;

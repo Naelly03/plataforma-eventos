@@ -1,4 +1,3 @@
-// Mesmo formato do model Event da API (date vem como ISO)
 export type Evento = {
   id: string;
   title: string;
@@ -8,7 +7,6 @@ export type Evento = {
   location: string;
   imageUrl: string;
   ownerId: string;
-  // só vem em /api/events; na lista de inscrições o evento não traz a contagem
   registrationsCount?: number;
 };
 

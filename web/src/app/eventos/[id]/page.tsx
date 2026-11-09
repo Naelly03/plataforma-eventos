@@ -175,7 +175,6 @@ export default function EventoDetalhesPage() {
             Imagem indisponível
           </p>
         ) : (
-          // URL externa e arbitrária: next/image exigiria liberar cada domínio
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={evento.imageUrl}

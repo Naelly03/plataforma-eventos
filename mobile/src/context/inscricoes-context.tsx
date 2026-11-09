@@ -24,9 +24,6 @@ type InscricoesContextValue = {
 
 const InscricoesContext = createContext<InscricoesContextValue | null>(null);
 
-// Guarda as inscrições do usuário para a lista, os detalhes e "Minhas inscrições"
-// ficarem sempre iguais. Deve ser montado com `key` do usuário, para que a
-// troca de conta comece com o estado limpo.
 export function InscricoesProvider({ children }: PropsWithChildren) {
   const { token } = useAuth();
 

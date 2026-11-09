@@ -9,8 +9,6 @@ export class ApiError extends Error {
 
 type ErroDaApi = { error?: string | string[] };
 
-// Chama a API. A sessão vai no cookie (HttpOnly) que o Better Auth define, e o
-// navegador o envia sozinho. Em 401 a sessão expirou: volta para o login.
 export async function api<T>(path: string, init: RequestInit = {}) {
   const headers = new Headers(init.headers);
 
@@ -23,8 +21,6 @@ export async function api<T>(path: string, init: RequestInit = {}) {
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    // Recarga completa em /login (de propósito, não um push do router): assim a
-    // sessão em cache do Better Auth é descartada e consultada de novo no servidor.
     // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     if (response.status === 401) window.location.assign("/login");
 

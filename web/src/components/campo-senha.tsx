@@ -9,11 +9,9 @@ type CampoSenhaProps = {
   onChange: (valor: string) => void;
   autoComplete: "current-password" | "new-password";
   minLength?: number;
-  // espaço abaixo do campo (classe de margem do Tailwind)
   className?: string;
 };
 
-// Campo de senha com o olhinho para mostrar ou esconder o texto
 export default function CampoSenha({
   id,
   value,

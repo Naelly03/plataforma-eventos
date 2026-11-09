@@ -1,4 +1,3 @@
-// Cores do app
 export const Marca = {
   laranja: '#ea580c',
   laranjaEscuro: '#c2410c',

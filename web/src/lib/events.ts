@@ -9,12 +9,10 @@ export const eventSchema = z.object({
   imageUrl: z.url("URL da imagem inválida"),
 });
 
-// Inclui a contagem de inscritos nas consultas de evento
 export const withRegistrationsCount = {
   _count: { select: { registrations: true } },
 } as const;
 
-// Troca `_count` por `registrationsCount` na resposta da API
 export function serializeEvent<T extends { _count: { registrations: number } }>(
   event: T
 ) {

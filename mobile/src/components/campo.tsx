@@ -15,9 +15,7 @@ import { Fonte, Tipo } from '@/constants/tipografia';
 
 type CampoProps = TextInputProps & {
   rotulo: string;
-  // espaço abaixo do campo; o design usa valores diferentes por tela
   espaco?: number;
-  // campo de senha: esconde o texto e mostra o olhinho para revelar
   senha?: boolean;
 };
 
@@ -37,7 +35,6 @@ export function Campo({ rotulo, espaco = 14, senha = false, style, ...props }: C
           secureTextEntry={senha ? !visivel : props.secureTextEntry}
           autoCorrect={senha ? false : props.autoCorrect}
           autoCapitalize={senha ? 'none' : props.autoCapitalize}
-          // com a senha à mostra, o Android não deve sugerir nem corrigir palavras
           keyboardType={
             senha && visivel && Platform.OS === 'android'
               ? 'visible-password'
@@ -82,13 +79,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Marca.borda,
     borderRadius: 14,
-    // sem lineHeight: em campos de texto ele corta o conteúdo no Android
     fontFamily: Fonte.regular,
     fontSize: 16,
     color: Marca.texto,
     backgroundColor: Marca.branco,
   },
-  // espaço para o olhinho não ficar por cima do texto digitado
   comOlho: {
     paddingRight: 52,
   },

@@ -9,7 +9,6 @@ type EventoCapaProps = {
   style?: StyleProp<ImageStyle>;
 };
 
-// Imagem do evento; se não carregar, fica o fundo cinza.
 export function EventoCapa({ imageUrl, altura, style }: EventoCapaProps) {
   return (
     <Image

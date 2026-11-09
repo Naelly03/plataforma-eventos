@@ -30,7 +30,6 @@ export default function LoginScreen() {
     setErro('');
 
     try {
-      // com a sessão iniciada, a rota protegida leva para a lista de eventos
       await entrar(email.trim(), senha);
     } catch (err) {
       setErro(mensagemDoErro(err, 'Não foi possível entrar. Tente novamente.'));

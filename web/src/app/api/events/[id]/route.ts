@@ -26,7 +26,6 @@ export async function GET(req: Request, { params }: Ctx) {
   return NextResponse.json(serializeEvent(event));
 }
 
-// Editar e excluir: só o organizador do evento (nem ADMIN altera evento de outro)
 export async function PUT(req: Request, { params }: Ctx) {
   const auth = await getAuth(req);
   if (!auth) {

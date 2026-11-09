@@ -19,14 +19,12 @@ const USER_KEY = 'agendou_user';
 type AuthContextValue = {
   usuario: Usuario | null;
   token: string | null;
-  // true enquanto a sessão salva no aparelho ainda está sendo lida
   carregando: boolean;
   entrar: (email: string, senha: string) => Promise<void>;
   cadastrar: (nome: string, email: string, senha: string) => Promise<void>;
   sair: () => Promise<void>;
 };
 
-// O Better Auth responde em inglês; aqui viram as mensagens do Agendou
 const mensagensDeAuth: Record<string, string> = {
   INVALID_EMAIL_OR_PASSWORD: 'Credenciais inválidas',
   USER_ALREADY_EXISTS: 'E-mail já cadastrado',
@@ -49,7 +47,6 @@ function traduzirErro(err: unknown): never {
   throw err;
 }
 
-// A resposta do Better Auth traz mais campos do que o app usa
 type UsuarioDaApi = { id: string; name: string; email: string; role?: string };
 
 function usuarioDe(user: UsuarioDaApi): Usuario {
@@ -72,8 +69,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
     await storage.salvar(USER_KEY, JSON.stringify(user));
   }, []);
 
-  // Só limpa o aparelho; não chama o servidor (usado também quando o servidor
-  // já disse que o token não vale mais)
   const limparSessao = useCallback(async () => {
     tokenRef.current = null;
     setToken(null);
@@ -82,7 +77,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
     await storage.remover(USER_KEY);
   }, []);
 
-  // Em 401 com sessão ativa o token expirou: encerra a sessão
   useEffect(() => {
     configurarApi({
       getToken: () => tokenRef.current,
@@ -90,7 +84,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
     });
   }, [limparSessao]);
 
-  // Mantém o usuário autenticado entre aberturas do app
   useEffect(() => {
     let ativo = true;
 
@@ -108,7 +101,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
           tokenRef.current = tokenSalvo;
           setToken(tokenSalvo);
         } catch {
-          // usuário salvo corrompido: segue sem sessão
         }
       }
 
@@ -122,8 +114,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
     };
   }, []);
 
-  // Login e cadastro respondem igual: o usuário vem no corpo e o token da
-  // sessão, no header set-auth-token. O cadastro já abre a sessão.
   const abrirSessao = useCallback(
     async (path: string, corpo: object) => {
       try {
@@ -160,11 +150,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
   );
 
   const sair = useCallback(async () => {
-    // avisa o servidor para encerrar a sessão; se falhar, sai do aparelho mesmo assim
     try {
       await api<unknown>('/api/auth/sign-out', { method: 'POST', body: '{}' });
     } catch {
-      // sem rede ou token já inválido: o aparelho encerra do mesmo jeito
     }
 
     await limparSessao();

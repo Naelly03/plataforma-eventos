@@ -1,11 +1,9 @@
 import { createAuthClient } from "better-auth/react";
 
-// Mesma origem do app: o cookie de sessão (HttpOnly) vai junto automaticamente.
 export const authClient = createAuthClient();
 
 type ErroDeAuth = { code?: string; message?: string; status?: number };
 
-// Mensagens do Better Auth vêm em inglês; aqui viram as do Agendou.
 export function mensagemDeAuth(error: ErroDeAuth | null | undefined, padrao: string) {
   if (!error) return padrao;
 

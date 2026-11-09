@@ -1,4 +1,3 @@
-// Cada peso vem do seu caminho: importar do pacote raiz embute todos os 14 arquivos
 import { Geist_400Regular } from '@expo-google-fonts/geist/400Regular';
 import { Geist_500Medium } from '@expo-google-fonts/geist/500Medium';
 import { Geist_700Bold } from '@expo-google-fonts/geist/700Bold';
@@ -32,10 +31,8 @@ function Navegacao() {
     Geist_800ExtraBold,
   });
 
-  // Se as fontes falharem, o app segue com a fonte do sistema
   const pronto = !carregando && (fontesProntas || Boolean(erroNasFontes));
 
-  // A splash nativa fica na tela até a sessão e as fontes estarem prontas
   useEffect(() => {
     if (pronto) void SplashScreen.hideAsync();
   }, [pronto]);
@@ -45,7 +42,6 @@ function Navegacao() {
   const logado = Boolean(token);
 
   return (
-    // `key` zera as inscrições ao trocar de usuário
     <InscricoesProvider key={usuario?.id ?? 'anonimo'}>
       <StatusBar style="dark" />
       <Stack

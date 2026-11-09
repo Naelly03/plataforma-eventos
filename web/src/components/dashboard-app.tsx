@@ -18,13 +18,9 @@ export default function DashboardApp({
 
   const rotaPublica = rotasPublicas.includes(pathname);
 
-  // Sem sessão ainda não significa deslogado: logo após o login a sessão é
-  // consultada de novo, e só depois dessa resposta dá para decidir.
   const verificando = (isPending || isRefetching) && !session;
   const semSessao = !verificando && !session;
 
-  // Rotas internas exigem sessão; sem ela (ou com a sessão expirada) o
-  // usuário volta para o login.
   useEffect(() => {
     if (!rotaPublica && semSessao) router.replace("/login");
   }, [rotaPublica, semSessao, router]);

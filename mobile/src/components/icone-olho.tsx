@@ -1,13 +1,11 @@
 import { StyleSheet, View } from 'react-native';
 
 type IconeOlhoProps = {
-  // true = olho riscado (senha escondida); false = olho aberto (senha visível)
   riscado: boolean;
   color: string;
   size?: number;
 };
 
-// Olho desenhado com Views, para não depender de biblioteca de ícones
 export function IconeOlho({ riscado, color, size = 24 }: IconeOlhoProps) {
   const largura = size * 0.92;
   const altura = size * 0.58;

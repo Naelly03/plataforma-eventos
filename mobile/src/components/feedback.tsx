@@ -4,7 +4,6 @@ import { Botao } from '@/components/botao';
 import { Marca } from '@/constants/marca';
 import { Fonte, Tipo } from '@/constants/tipografia';
 
-// Mensagem de erro curta, usada dentro de formulários e telas
 export function Aviso({ texto }: { texto: string }) {
   return (
     <View accessibilityRole="alert" style={styles.aviso}>
@@ -13,7 +12,6 @@ export function Aviso({ texto }: { texto: string }) {
   );
 }
 
-// Estado de erro da lista, com "Tentar novamente" (como no design)
 export function ErroDeCarregamento({
   mensagem,
   onTentarNovamente,
@@ -33,7 +31,6 @@ export function ErroDeCarregamento({
   );
 }
 
-// Cartões cinza enquanto a lista carrega (como no design)
 export function EsqueletoDeCards({ quantidade = 3 }: { quantidade?: number }) {
   return (
     <View accessibilityLabel="Carregando" style={styles.esqueletos}>

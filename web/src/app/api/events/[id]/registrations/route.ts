@@ -4,10 +4,8 @@ import { getAuth } from "@/lib/auth";
 
 type Ctx = { params: Promise<{ id: string }> };
 
-// P2002 = violação de unique (userId + eventId), P2003 = chave estrangeira inexistente
 const prismaCode = (e: unknown) => (e as { code?: string })?.code;
 
-// Lista de inscritos: só o organizador do evento
 export async function GET(req: Request, { params }: Ctx) {
   const auth = await getAuth(req);
   if (!auth) {
@@ -58,7 +56,6 @@ export async function POST(req: Request, { params }: Ctx) {
     if (prismaCode(e) === "P2002") {
       return NextResponse.json({ error: "Você já está inscrito neste evento" }, { status: 409 });
     }
-    // token válido mas o usuário não existe mais
     if (prismaCode(e) === "P2003") {
       return NextResponse.json({ error: "Usuário não encontrado" }, { status: 401 });
     }

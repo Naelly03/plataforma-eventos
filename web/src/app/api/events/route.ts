@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { getAuth } from "@/lib/auth";
 import { eventSchema, serializeEvent, withRegistrationsCount } from "@/lib/events";
 
-// P2003 = chave estrangeira inexistente (token válido, mas o usuário não existe mais)
 const prismaCode = (e: unknown) => (e as { code?: string })?.code;
 
 export async function GET(req: Request) {
@@ -19,7 +18,6 @@ export async function GET(req: Request) {
   return NextResponse.json(events.map(serializeEvent));
 }
 
-// Qualquer usuário logado cria eventos e passa a ser o organizador (owner) deles
 export async function POST(req: Request) {
   const auth = await getAuth(req);
   if (!auth) {

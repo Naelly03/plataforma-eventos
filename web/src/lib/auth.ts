@@ -12,7 +12,6 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 6,
-    // Mantém o bcrypt: as senhas já cadastradas continuam valendo
     password: {
       hash: (password) => bcrypt.hash(password, 10),
       verify: ({ hash, password }) => bcrypt.compare(password, hash),
@@ -21,7 +20,6 @@ export const auth = betterAuth({
 
   user: {
     additionalFields: {
-      // input: false => o cliente não consegue se cadastrar como ADMIN
       role: {
         type: "string",
         required: false,
@@ -31,11 +29,10 @@ export const auth = betterAuth({
     },
   },
 
-  session: { expiresIn: 60 * 60 * 24 * 7 }, // 7 dias
+  session: { expiresIn: 60 * 60 * 24 * 7 },
 
   plugins: [bearer()],
 });
-
 
 export async function getAuth(req: Request) {
   const session = await auth.api.getSession({ headers: req.headers });

@@ -44,7 +44,6 @@ export default function CadastroScreen() {
     setErro('');
 
     try {
-      // cria a conta e já entra; a rota protegida leva para a lista de eventos
       await cadastrar(nome.trim(), email.trim(), senha);
     } catch (err) {
       setErro(mensagemDoErro(err, 'Não foi possível criar a conta. Tente novamente.'));

@@ -20,7 +20,6 @@ export async function DELETE(req: Request, { params }: Ctx) {
     return NextResponse.json({ error: "Inscrição não encontrada" }, { status: 404 });
   }
 
-  // cancela quem se inscreveu ou o organizador do evento (remover inscrito)
   const isRegistrant = registration.userId === auth.userId;
   const isEventOwner = registration.event.ownerId === auth.userId;
   if (!isRegistrant && !isEventOwner) {

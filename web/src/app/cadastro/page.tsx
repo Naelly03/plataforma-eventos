@@ -36,7 +36,6 @@ export default function CadastroPage() {
     setLoading(true);
 
     try {
-      // O cadastro já abre a sessão (autoSignIn do Better Auth)
       const { error } = await authClient.signUp.email({ name, email, password });
 
       if (error) {
